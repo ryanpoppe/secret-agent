@@ -3,39 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scavenger Hunt - Help</title>
+    <title>Operation V3 Genesis - Mission Protocol</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #00ff00;
+            line-height: 1.8;
         }
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
         h1 {
-            color: #333;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px #00ffff;
         }
-        p {
-            line-height: 1.6;
-            color: #666;
+        h2 {
+            color: #ffff00;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+        }
+        p, li {
+            color: #00ff00;
+            margin-bottom: 12px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            color: #ff6b6b;
+            font-weight: bold;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 15px;
+            border-left: 4px solid #ff6b6b;
+            margin: 20px 0;
+        }
+        .tip {
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-left: 4px solid #ffd700;
+            margin: 20px 0;
+        }
+        .success {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-left: 4px solid #00ff88;
+            margin: 20px 0;
+        }
+        a {
+            color: #00ffff;
+            text-decoration: none;
+            border-bottom: 1px dotted #00ffff;
+        }
+        a:hover {
+            color: #ffff00;
+            border-bottom: 1px solid #ffff00;
+        }
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ff79c6;
+        }
+        .classified {
+            opacity: 0.7;
+            font-size: 0.9em;
+            font-style: italic;
         }
     </style>
 </head>
 <!-- You notice something sticking out from under the rug. It is a little note, it says: 'if you get really stuck, you can always send a message to ryan.poppe@vasion.com' -->
 <body>
     <div class="container">
-        <h1 id="you-need-help">You need help?</h1>
-        <p>This site does not have many links to help you navigate, you will need to move forward by changing the path in the URL.</p>
-        <p>Once you solve a piece of the puzzle, you can type the answer in the URL path to continue your journey. Sometimes you can also type keywords related to the puzzle to find additional clues (they are not needed to solve the puzzle, but may help you along the way).</p>
-        <p>You can use spaces and uppercase letters in the path. In some cases you MUST use the proper capitalization, so try a few variations.</p>
-        <p>Also, this site works best on a computer. Some of its secrets are hard to find using a mobile browser.</p>
-        <p>If you are really stuck, click <a href="/help/I%20am%20stuck">I am stuck</a> for a hint.</p>
+        <h1>🔒 Mission Protocol & Field Guide</h1>
+        
+        <p class="classified">[CLASSIFIED - CLEARANCE LEVEL: V3 OPERATIVE]</p>
+        
+        <h2>📡 Mission Status Check</h2>
+        <p>Welcome, operative. This field guide contains essential protocols for navigating Operation V3 Genesis. Your mission success depends on understanding these core principles.</p>
+        
+        <div class="warning">
+            <strong>⚠️ CRITICAL:</strong> This mission works best on a computer terminal. Mobile devices lack the necessary tools to uncover certain classified intelligence.
+        </div>
+
+        <h2>🗺️ Navigation Protocol</h2>
+        <p>Unlike conventional web interfaces, this operation requires manual path navigation:</p>
+        <ul>
+            <li><strong>URL-based movement:</strong> Change the path in your browser's address bar to advance</li>
+            <li><strong>Case sensitivity:</strong> Some paths require exact capitalization (e.g., <code>Print Server</code> not <code>print server</code>)</li>
+            <li><strong>Spaces allowed:</strong> Folder names may contain spaces - type them naturally</li>
+            <li><strong>Direct answers:</strong> Type puzzle solutions as URL paths (e.g., <code>/Your Answer Here/</code>)</li>
+            <li><strong>Alternative keywords:</strong> Some related terms may reveal bonus intel (not required, but helpful)</li>
+        </ul>
+
+        <div class="tip">
+            <strong>💡 EXAMPLE:</strong> If you solve a puzzle and the answer is "Serverless Print", navigate to <code>/Serverless Print/</code> in your URL bar.
+        </div>
+
+        <h2>🔍 Protocol: Finding Hidden Clues</h2>
+        <p>Intelligence is hidden in multiple layers. Use these reconnaissance techniques:</p>
+        <ul>
+            <li><strong>View Page Source:</strong> Right-click → "View Page Source" or press <code>Ctrl+U</code> (Windows) / <code>Cmd+Option+U</code> (Mac)</li>
+            <li><strong>Inspect Elements:</strong> Right-click → "Inspect" or press <code>F12</code> to examine HTML/CSS in detail</li>
+            <li><strong>Check meta tags:</strong> Look for hidden messages in <code>&lt;meta&gt;</code> tags</li>
+            <li><strong>Scan HTML comments:</strong> Look for <code>&lt;!-- hidden messages --&gt;</code></li>
+            <li><strong>CSS inspection:</strong> Some text may be hidden with near-invisible colors or opacity</li>
+            <li><strong>Image analysis:</strong> QR codes, steganography, or embedded text may appear in images</li>
+            <li><strong>Audio signals:</strong> Listen carefully - some pages may contain audio clues</li>
+            <li><strong>Network tab:</strong> Check browser DevTools Network tab for hidden file references</li>
+        </ul>
+
+        <div class="success">
+            <strong>✅ PRO TIP:</strong> When you find suspicious-looking encoded text, it's usually there for a reason. Copy it and try decoding it!
+        </div>
+
+        <h2>🔐 Protocol: Decryption Methods</h2>
+        <p>Throughout this mission you'll encounter various encryption methods:</p>
+        <ul>
+            <li><strong>Caesar Cipher:</strong> Letter shifting (e.g., A→B, B→C). Try different shift values.</li>
+            <li><strong>Base64:</strong> Encoded strings ending in <code>=</code> or <code>==</code>. Use online Base64 decoders.</li>
+            <li><strong>Binary:</strong> Sequences of 0s and 1s. Convert using binary-to-ASCII tools.</li>
+            <li><strong>ROT13:</strong> Special case of Caesar cipher with 13-letter shift.</li>
+            <li><strong>Vigenère Cipher:</strong> Polyalphabetic substitution requiring a keyword.</li>
+            <li><strong>URL Encoding:</strong> Text with <code>%20</code> and <code>%3A</code> symbols.</li>
+            <li><strong>Morse Code:</strong> Dots (·) and dashes (—). Listen for audio patterns.</li>
+        </ul>
+
+        <div class="tip">
+            <strong>🛠️ TOOLS:</strong> Search for online cipher tools like "CyberChef," "dCode.fr," or "Base64 decoder" when you encounter encoded messages.
+        </div>
+
+        <h2>🚨 Dead Ends & Escape Routes</h2>
+        <p>Some paths lead to traps designed to test your resourcefulness:</p>
+        <ul>
+            <li>If you reach a "migration trap" or "bandwidth restriction," you're off course</li>
+            <li>Look carefully in the page source for escape instructions</li>
+            <li>These dead ends have hidden hints to get you back on track</li>
+            <li>Remember: every puzzle has a solution, and every trap has an exit</li>
+        </ul>
+
+        <h2>📚 Mission Structure</h2>
+        <p>Operation V3 Genesis is organized into four acts:</p>
+        <ul>
+            <li><strong>ACT 1:</strong> Infrastructure Elimination (Print Server operations)</li>
+            <li><strong>ACT 2:</strong> Document Automation (OCR, eSignatures, data security)</li>
+            <li><strong>ACT 3:</strong> Zero Trust Security (Authentication protocols)</li>
+            <li><strong>ACT 4:</strong> Output & AI Evolution (Cloud integration, AI agents)</li>
+        </ul>
+
+        <div class="warning">
+            <strong>⚠️ STUCK?</strong> If you're completely blocked, visit <a href="/help/I%20am%20stuck">/help/I am stuck</a> for emergency protocols. For critical assistance, contact mission control at ryan.poppe@vasion.com
+        </div>
+
+        <h2>🎯 Key Mission Reminders</h2>
+        <ul>
+            <li>Answers are usually related to Vasion products, technology, or industry terms</li>
+            <li>Think about print management, document workflow, security, and cloud infrastructure</li>
+            <li>Pay attention to context clues: puzzle content often hints at the answer format</li>
+            <li>Don't overthink it - if something seems like it could be the answer, try it!</li>
+            <li>Try variations: singular/plural, with/without spaces, different capitalizations</li>
+        </ul>
+
+        <div class="success">
+            <strong>🎖️ Remember, Operative:</strong> Every expert was once a beginner. Use these tools, trust your instincts, and complete the mission. Good luck!
+        </div>
+
+        <p style="text-align: center; margin-top: 40px; opacity: 0.6;">
+            <a href="/">← Return to Mission Briefing</a>
+        </p>
     </div>
 </body>
 </html>
