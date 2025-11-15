@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Agent - Mission Brief</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #0a0e27;
+            color: #00ff00;
+        }
+        .container {
+            background: #1a1d35;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,255,0,0.3);
+            border: 2px solid #00ff00;
+        }
+        h1 {
+            color: #00ff00;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #ffaa00;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+        p {
+            line-height: 1.8;
+            color: #cccccc;
+            font-size: 16px;
+        }
+        .mission-brief {
+            background: rgba(0,255,0,0.05);
+            padding: 20px;
+            border-left: 4px solid #00ff00;
+            margin: 20px 0;
+        }
+        .encoded-message {
+            background: rgba(255,170,0,0.1);
+            padding: 20px;
+            border-left: 4px solid #ffaa00;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cipher {
+            font-size: 24px;
+            color: #ffaa00;
+            letter-spacing: 2px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        a {
+            color: #00ffaa;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #00ff00;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<!-- Hint: Try base 64 decoding the text below -->
+<body>
+    <div class="container">
+        <h1>🕵️ Congratulations, Agent!</h1>
+        <h2>First Clue Deciphered</h2>
+        
+        <div class="mission-brief">
+            <p>Excellent work, Agent. You've successfully deciphered the first clue and proven your worth. Your skills in code-breaking are exactly what we need for this mission.</p>
+            <p>But the mission is far from over. Intelligence has intercepted another encrypted message that requires your expertise.</p>
+        </div>
+
+        <div class="encoded-message">
+            <p><strong>Your next objective:</strong></p>
+            <p>Decode the following message:</p>
+            <p class="cipher">UHJpbnQgU2VydmVy</p>
+            <p style="font-size: 14px; font-style: italic; opacity: 0.8;">The answer will lead you to your next destination.</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="/">← Return to Base</a>
+        </p>
+    </div>
+</body>
+</html>

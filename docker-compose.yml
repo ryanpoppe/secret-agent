@@ -5,5 +5,7 @@ services:
     build: .
     ports:
       - "8080:80"
-    volumes:
-      - ./html:/usr/share/nginx/html:ro
+    # volumes:
+    #   - ./html:/usr/share/nginx/html:ro
+    # Volume mount removed for case-sensitive filesystem in container
+    # To update content, rebuild: docker compose up -d --build
