@@ -84,4 +84,3 @@ export function usePuzzle(puzzleId: number) {
     resetPuzzle,
   }
 }
-

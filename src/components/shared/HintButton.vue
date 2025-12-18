@@ -26,7 +26,7 @@ function revealHint() {
 
 <template>
   <div class="hint-container">
-    <button 
+    <button
       class="hint-button"
       :class="{ revealed: isRevealed }"
       :disabled="disabled || isRevealed"
@@ -35,7 +35,7 @@ function revealHint() {
       <span class="hint-icon">{{ isRevealed ? '✓' : '?' }}</span>
       <span class="hint-text">{{ buttonText }}</span>
     </button>
-    
+
     <Transition name="hint-reveal">
       <div v-if="isRevealed" class="hint-content">
         <div class="hint-label">INTEL:</div>
@@ -125,4 +125,3 @@ function revealHint() {
   transform: translateY(-10px);
 }
 </style>
-

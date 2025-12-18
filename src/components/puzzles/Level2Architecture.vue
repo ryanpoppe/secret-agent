@@ -79,7 +79,7 @@ const isComplete = computed(() => {
 })
 
 const filledSlots = computed(() => {
-  return slots.value.filter(s => s !== null).length
+  return slots.value.filter((s) => s !== null).length
 })
 
 // Methods
@@ -90,46 +90,46 @@ function selectComponent(component: ArchitectureComponent) {
 
 function placeInSlot(slotIndex: number) {
   if (!selectedComponent.value || showSuccess.value) return
-  
+
   const component = selectedComponent.value
-  
+
   // Don't allow placing print server in slots
   if (component.isLegacy) {
     showFeedback('incorrect', 'Legacy servers cannot be part of the new architecture!')
     return
   }
-  
+
   // Check if already placed somewhere else
-  const existingSlotIndex = slots.value.findIndex(s => s?.id === component.id)
+  const existingSlotIndex = slots.value.findIndex((s) => s?.id === component.id)
   if (existingSlotIndex !== -1) {
     slots.value[existingSlotIndex] = null
   }
-  
+
   // Place in new slot
   slots.value[slotIndex] = component
-  
+
   // Remove from available
-  availableComponents.value = availableComponents.value.filter(c => c.id !== component.id)
-  
+  availableComponents.value = availableComponents.value.filter((c) => c.id !== component.id)
+
   // Add back any component that was in this slot
   const previousComponent = slots.value[slotIndex]
   if (previousComponent && previousComponent.id !== component.id) {
     availableComponents.value.push(previousComponent)
   }
-  
+
   selectedComponent.value = null
-  
+
   // Check if correct
   if (slots.value[slotIndex]?.id === correctOrder[slotIndex]) {
     showFeedback('correct', 'Component placed correctly!')
   }
-  
+
   checkCompletion()
 }
 
 function eliminateServer() {
   if (showSuccess.value) return
-  
+
   const serverComponent = selectedComponent.value
   if (!serverComponent?.isLegacy) {
     if (selectedComponent.value) {
@@ -137,14 +137,14 @@ function eliminateServer() {
     }
     return
   }
-  
+
   // Start wire cutting animation
   showWireCutting.value = true
   selectedComponent.value = null
-  
+
   // Remove from available
-  availableComponents.value = availableComponents.value.filter(c => c.id !== 'server')
-  
+  availableComponents.value = availableComponents.value.filter((c) => c.id !== 'server')
+
   setTimeout(() => {
     eliminatedServer.value = true
     showWireCutting.value = false
@@ -155,41 +155,41 @@ function eliminateServer() {
 
 function directPlaceInSlot(component: ArchitectureComponent, slotIndex: number, event: Event) {
   event.stopPropagation()
-  
+
   if (showSuccess.value) return
-  
+
   if (component.isLegacy) {
     showFeedback('incorrect', 'Legacy servers cannot be part of the new architecture!')
     return
   }
-  
+
   // Remove from any existing slot
-  const existingSlotIndex = slots.value.findIndex(s => s?.id === component.id)
+  const existingSlotIndex = slots.value.findIndex((s) => s?.id === component.id)
   if (existingSlotIndex !== -1) {
     slots.value[existingSlotIndex] = null
   }
-  
+
   // Place in slot
   slots.value[slotIndex] = component
-  
+
   // Remove from available
-  availableComponents.value = availableComponents.value.filter(c => c.id !== component.id)
-  
+  availableComponents.value = availableComponents.value.filter((c) => c.id !== component.id)
+
   if (slots.value[slotIndex]?.id === correctOrder[slotIndex]) {
     showFeedback('correct', 'Component placed correctly!')
   }
-  
+
   checkCompletion()
 }
 
 function directEliminateServer(component: ArchitectureComponent, event: Event) {
   event.stopPropagation()
-  
+
   if (!component.isLegacy || showSuccess.value) return
-  
+
   showWireCutting.value = true
-  availableComponents.value = availableComponents.value.filter(c => c.id !== 'server')
-  
+  availableComponents.value = availableComponents.value.filter((c) => c.id !== 'server')
+
   setTimeout(() => {
     eliminatedServer.value = true
     showWireCutting.value = false
@@ -274,7 +274,7 @@ onMounted(() => {
         <span class="location-tag">LOCATION: Apex Industries Data Center</span>
         <span class="difficulty-tag">DIFFICULTY: ⭐⭐ Moderate</span>
       </div>
-      
+
       <div class="briefing-content">
         <div class="thermal-scan">
           <div class="scan-header">🔥 THERMAL SCAN RESULTS:</div>
@@ -285,22 +285,22 @@ onMounted(() => {
             <li>Attack vectors: <span class="scan-critical">CRITICAL LEVEL</span></li>
           </ul>
         </div>
-        
+
         <p class="task-description">
-          <strong>YOUR MISSION:</strong> Build Vasion's cloud-native architecture by placing 
-          components in the correct sequence. The legacy print server must be 
+          <strong>YOUR MISSION:</strong> Build Vasion's cloud-native architecture by placing
+          components in the correct sequence. The legacy print server must be
           <strong class="highlight-danger">ELIMINATED</strong>.
         </p>
       </div>
 
       <!-- Hint section -->
       <div class="hint-section">
-        <button v-if="!showHint" class="hint-btn" @click="revealHint">
-          ? REQUEST INTEL
-        </button>
+        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL</button>
         <div v-else class="hint-content">
           <span class="hint-label">INTEL:</span>
-          <p>The flow goes: User device → Cloud for config → Direct to printer. No servers needed!</p>
+          <p>
+            The flow goes: User device → Cloud for config → Direct to printer. No servers needed!
+          </p>
         </div>
       </div>
     </div>
@@ -368,17 +368,17 @@ onMounted(() => {
     <!-- New architecture builder -->
     <div class="new-architecture">
       <h3 class="section-title new-title">✓ THE NEW WAY (Build It!)</h3>
-      
+
       <!-- Architecture slots -->
       <div class="architecture-builder">
-        <div 
-          v-for="(slot, index) in slots" 
+        <div
+          v-for="(slot, index) in slots"
           :key="index"
           class="architecture-slot"
-          :class="{ 
+          :class="{
             filled: slot !== null,
             correct: slot?.id === correctOrder[index],
-            'drop-target': selectedComponent !== null && !selectedComponent.isLegacy
+            'drop-target': selectedComponent !== null && !selectedComponent.isLegacy,
           }"
           @click="placeInSlot(index)"
           @dragover="handleDragOver"
@@ -391,21 +391,23 @@ onMounted(() => {
           </div>
           <div v-else class="slot-placeholder">
             <span class="slot-number">{{ index + 1 }}</span>
-            <span class="slot-hint">{{ selectedComponent && !selectedComponent.isLegacy ? 'TAP TO PLACE' : 'DROP HERE' }}</span>
+            <span class="slot-hint">{{
+              selectedComponent && !selectedComponent.isLegacy ? 'TAP TO PLACE' : 'DROP HERE'
+            }}</span>
           </div>
         </div>
-        
+
         <!-- Flow arrows between slots -->
         <div class="flow-connector" style="left: calc(33.33% - 15px)">→</div>
         <div class="flow-connector" style="left: calc(66.66% - 15px)">→</div>
       </div>
 
       <!-- Elimination zone -->
-      <div 
+      <div
         class="elimination-zone"
-        :class="{ 
+        :class="{
           active: selectedComponent?.isLegacy,
-          eliminated: eliminatedServer
+          eliminated: eliminatedServer,
         }"
         @click="eliminateServer"
         @dragover="handleDragOver"
@@ -432,9 +434,9 @@ onMounted(() => {
           v-for="component in availableComponents"
           :key="component.id"
           class="component-card"
-          :class="{ 
+          :class="{
             selected: selectedComponent?.id === component.id,
-            legacy: component.isLegacy
+            legacy: component.isLegacy,
           }"
           draggable="true"
           @click="selectComponent(component)"
@@ -449,31 +451,22 @@ onMounted(() => {
           <ul class="component-details">
             <li v-for="(detail, i) in component.details" :key="i">{{ detail }}</li>
           </ul>
-          
+
           <!-- Action buttons -->
           <div class="component-actions">
             <template v-if="!component.isLegacy">
-              <button 
-                class="action-btn slot-1"
-                @click="directPlaceInSlot(component, 0, $event)"
-              >
+              <button class="action-btn slot-1" @click="directPlaceInSlot(component, 0, $event)">
                 SLOT 1
               </button>
-              <button 
-                class="action-btn slot-2"
-                @click="directPlaceInSlot(component, 1, $event)"
-              >
+              <button class="action-btn slot-2" @click="directPlaceInSlot(component, 1, $event)">
                 SLOT 2
               </button>
-              <button 
-                class="action-btn slot-3"
-                @click="directPlaceInSlot(component, 2, $event)"
-              >
+              <button class="action-btn slot-3" @click="directPlaceInSlot(component, 2, $event)">
                 SLOT 3
               </button>
             </template>
             <template v-else>
-              <button 
+              <button
                 class="action-btn eliminate"
                 @click="directEliminateServer(component, $event)"
               >
@@ -482,7 +475,7 @@ onMounted(() => {
             </template>
           </div>
         </div>
-        
+
         <div v-if="availableComponents.length === 0" class="empty-components">
           All components placed!
         </div>
@@ -516,12 +509,10 @@ onMounted(() => {
           <div class="success-header">
             <h2>🎯 OBJECTIVE 2: COMPLETE</h2>
           </div>
-          
+
           <div class="success-content">
-            <div class="success-message">
-              THREAT ELIMINATED: Legacy print servers removed
-            </div>
-            
+            <div class="success-message">THREAT ELIMINATED: Legacy print servers removed</div>
+
             <div class="architecture-result">
               <h3>VASION CLOUD-NATIVE ARCHITECTURE</h3>
               <div class="result-flow">
@@ -578,7 +569,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          
+
           <div class="success-actions">
             <button class="btn btn-primary btn-lg" @click="proceed">
               PROCEED TO OBJECTIVE 3 →
@@ -920,7 +911,7 @@ onMounted(() => {
   .flow-connector {
     display: none;
   }
-  
+
   .architecture-builder {
     flex-direction: column;
   }
@@ -1222,8 +1213,12 @@ onMounted(() => {
 }
 
 @keyframes fillProgress {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 .cutting-animation {
@@ -1240,8 +1235,13 @@ onMounted(() => {
 }
 
 @keyframes snip {
-  0%, 100% { transform: rotate(-10deg); }
-  50% { transform: rotate(10deg); }
+  0%,
+  100% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
 }
 
 .wire {
@@ -1252,9 +1252,16 @@ onMounted(() => {
 }
 
 @keyframes cutWire {
-  0% { width: 60px; }
-  80% { width: 60px; }
-  100% { width: 0; opacity: 0; }
+  0% {
+    width: 60px;
+  }
+  80% {
+    width: 60px;
+  }
+  100% {
+    width: 0;
+    opacity: 0;
+  }
 }
 
 .sparks {
@@ -1262,8 +1269,15 @@ onMounted(() => {
 }
 
 @keyframes sparkle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 .cutting-status {
@@ -1521,4 +1535,3 @@ onMounted(() => {
   transform: scale(0.9);
 }
 </style>
-

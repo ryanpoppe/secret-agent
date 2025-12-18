@@ -65,7 +65,7 @@ onMounted(() => {
         <div class="panel-header">
           <h2>MISSION REPORT</h2>
         </div>
-        
+
         <div class="stats-grid">
           <div class="stat-item">
             <span class="stat-label">AGENT</span>
@@ -89,22 +89,22 @@ onMounted(() => {
       <!-- Next steps -->
       <div class="panel next-steps-panel">
         <h2 class="panel-title">NEXT STEPS</h2>
-        
+
         <p class="next-steps-text">
-          Excellent work, Agent <strong>{{ playerStore.name }}</strong>!
+          Excellent work, Agent <strong>{{ playerStore.name }}</strong
+          >!
         </p>
-        
+
         <p class="next-steps-text">
-          Your skills have been noted. A member of our team will contact you at 
-          <strong class="email-highlight">{{ playerStore.email }}</strong> to discuss 
-          your next assignment.
+          Your skills have been noted. A member of our team will contact you at
+          <strong class="email-highlight">{{ playerStore.email }}</strong> to discuss your next
+          assignment.
         </p>
 
         <div class="cta-section">
           <p class="cta-text">
-            Visit the <strong>Vasion</strong> booth to learn more about 
-            Intelligent Print Automation and how we can help secure your organization's 
-            print infrastructure.
+            Visit the <strong>Vasion</strong> booth to learn more about Intelligent Print Automation
+            and how we can help secure your organization's print infrastructure.
           </p>
         </div>
       </div>
@@ -112,23 +112,19 @@ onMounted(() => {
       <!-- Quote -->
       <div class="quote-section">
         <blockquote class="quote">
-          "In the world of IT security, trust is a vulnerability.<br/>
+          "In the world of IT security, trust is a vulnerability.<br />
           Zero trust is the only path to true protection."
         </blockquote>
       </div>
 
       <!-- Actions -->
       <div class="actions-section">
-        <button class="btn btn-secondary" @click="restartMission">
-          ↺ NEW MISSION
-        </button>
+        <button class="btn btn-secondary" @click="restartMission">↺ NEW MISSION</button>
       </div>
 
       <!-- Footer -->
       <footer class="debrief-footer">
-        <p class="footer-text">
-          TRANSMISSION COMPLETE • VASION CYBER OPERATIONS
-        </p>
+        <p class="footer-text">TRANSMISSION COMPLETE • VASION CYBER OPERATIONS</p>
       </footer>
     </div>
   </div>
@@ -304,7 +300,7 @@ onMounted(() => {
     grid-template-columns: 1fr;
     gap: var(--space-md);
   }
-  
+
   .stat-item {
     flex-direction: row;
     justify-content: space-between;
@@ -312,4 +308,3 @@ onMounted(() => {
   }
 }
 </style>
-

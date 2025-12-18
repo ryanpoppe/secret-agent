@@ -36,7 +36,13 @@ export const usePlayerStore = defineStore('player', () => {
     if (data.submittedAt !== undefined) submittedAt.value = data.submittedAt
   }
 
-  function registerPlayer(data: { name: string; email: string; company: string; role?: string; phone?: string }) {
+  function registerPlayer(data: {
+    name: string
+    email: string
+    company: string
+    role?: string
+    phone?: string
+  }) {
     name.value = data.name
     email.value = data.email
     company.value = data.company
@@ -104,4 +110,3 @@ export const usePlayerStore = defineStore('player', () => {
     clearPlayer,
   }
 })
-

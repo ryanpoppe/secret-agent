@@ -12,11 +12,11 @@ defineProps<{
       <span class="brief-label">OBJECTIVE {{ levelNumber }}</span>
       <div class="brief-stamp">CLASSIFIED</div>
     </div>
-    
+
     <h2 class="brief-title">{{ title }}</h2>
-    
+
     <p class="brief-description">{{ description }}</p>
-    
+
     <div class="brief-divider">
       <span class="divider-text">MISSION PARAMETERS</span>
     </div>
@@ -82,12 +82,7 @@ defineProps<{
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-border-bright),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-border-bright), transparent);
 }
 
 .divider-text {
@@ -97,4 +92,3 @@ defineProps<{
   white-space: nowrap;
 }
 </style>
-

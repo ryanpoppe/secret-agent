@@ -96,7 +96,7 @@ const puzzleConfigs: Puzzle[] = [
     missionBrief: 'The default port for SSH connections.',
     question: 'What port does SSH use by default?',
     answer: '22',
-    hint: 'It\'s a low-numbered well-known port.',
+    hint: "It's a low-numbered well-known port.",
   },
   {
     id: 11,
@@ -137,19 +137,17 @@ export const usePuzzleStore = defineStore('puzzle', () => {
     if (!puzzle) return false
 
     const normalizedAnswer = answer.toUpperCase().trim()
-    
+
     // Check main answer
     if (normalizedAnswer === puzzle.answer.toUpperCase()) {
       return true
     }
-    
+
     // Check acceptable alternatives
     if (puzzle.acceptableAnswers) {
-      return puzzle.acceptableAnswers.some(
-        (alt) => normalizedAnswer === alt.toUpperCase()
-      )
+      return puzzle.acceptableAnswers.some((alt) => normalizedAnswer === alt.toUpperCase())
     }
-    
+
     return false
   }
 
@@ -176,4 +174,3 @@ export const usePuzzleStore = defineStore('puzzle', () => {
     resetAttempts,
   }
 })
-

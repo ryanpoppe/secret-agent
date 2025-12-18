@@ -26,4 +26,3 @@ export interface LeadSubmission {
   source: 'tradeshow' | 'web'
   event?: string // Tradeshow name
 }
-

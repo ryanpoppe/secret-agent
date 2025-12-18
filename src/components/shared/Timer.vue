@@ -56,4 +56,3 @@ onUnmounted(() => {
   min-width: 60px;
 }
 </style>
-

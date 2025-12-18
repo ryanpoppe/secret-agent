@@ -173,7 +173,7 @@ function placeCard(category: Category) {
 
 function categorizeCard(card: RequirementCard, category: Category) {
   if (isComplete.value) return
-  
+
   const isCorrect = card.correctCategory === category
 
   // Remove from unplaced
@@ -296,28 +296,23 @@ onMounted(() => {
         <span class="location-tag">LOCATION: Apex Industries Intelligence Center</span>
         <span class="difficulty-tag">DIFFICULTY: ⭐ Basic</span>
       </div>
-      
+
       <div class="briefing-content">
         <p>
-          Agent, you've successfully infiltrated Apex Industries' secure network. 
-          Before we can deploy countermeasures, you need to understand the 
+          Agent, you've successfully infiltrated Apex Industries' secure network. Before we can
+          deploy countermeasures, you need to understand the
           <strong class="highlight">three pillars</strong> of Intelligent Print Automation.
         </p>
         <p class="task-description">
-          <strong>YOUR TASK:</strong> Sort the 12 intercepted requirement cards into the correct categories.
-          You must correctly categorize at least <strong class="highlight">9 out of 12</strong> to proceed.
+          <strong>YOUR TASK:</strong> Sort the 12 intercepted requirement cards into the correct
+          categories. You must correctly categorize at least
+          <strong class="highlight">9 out of 12</strong> to proceed.
         </p>
       </div>
 
       <!-- Hint section -->
       <div class="hint-section">
-        <button 
-          v-if="!showHint" 
-          class="hint-btn" 
-          @click="revealHint"
-        >
-          ? REQUEST INTEL
-        </button>
+        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL</button>
         <div v-else class="hint-content">
           <span class="hint-label">INTEL:</span>
           <ul class="hint-list">
@@ -367,22 +362,22 @@ onMounted(() => {
               </span>
             </div>
             <p class="card-description">{{ card.description }}</p>
-            
+
             <!-- Category buttons for easy mobile interaction -->
             <div class="card-actions">
-              <button 
+              <button
                 class="category-btn modernize"
                 @click="categorizeCardDirect(card, 'MODERNIZE', $event)"
               >
                 MODERNIZE
               </button>
-              <button 
+              <button
                 class="category-btn consolidate"
                 @click="categorizeCardDirect(card, 'CONSOLIDATE', $event)"
               >
                 CONSOLIDATE
               </button>
-              <button 
+              <button
                 class="category-btn automate"
                 @click="categorizeCardDirect(card, 'AUTOMATE', $event)"
               >
@@ -390,7 +385,7 @@ onMounted(() => {
               </button>
             </div>
           </div>
-          
+
           <div v-if="unplacedCards.length === 0 && !isComplete" class="empty-stack">
             All documents classified
           </div>
@@ -495,17 +490,15 @@ onMounted(() => {
           <div class="results-header" :class="{ success: canProceed, failure: !canProceed }">
             <h2>INTELLIGENCE ANALYSIS: {{ canProceed ? 'COMPLETE' : 'INCOMPLETE' }}</h2>
           </div>
-          
+
           <div class="results-content">
             <div class="results-score">
               <span class="score-number">{{ correctCount }}/12</span>
               <span class="score-percentage">({{ score }}%)</span>
             </div>
-            
-            <div class="results-grade" :class="grade.toLowerCase()">
-              GRADE: {{ grade }}
-            </div>
-            
+
+            <div class="results-grade" :class="grade.toLowerCase()">GRADE: {{ grade }}</div>
+
             <p class="results-message">{{ gradeMessage }}</p>
 
             <div v-if="canProceed" class="pillars-summary">
@@ -527,7 +520,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          
+
           <div class="results-actions">
             <button v-if="!canProceed" class="btn btn-secondary" @click="retry">
               ↺ RETRY MISSION
@@ -755,7 +748,9 @@ onMounted(() => {
 
 .requirement-card.selected {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-dim), var(--shadow-glow);
+  box-shadow:
+    0 0 0 3px var(--color-primary-dim),
+    var(--shadow-glow);
   transform: scale(1.02);
 }
 
@@ -1189,4 +1184,3 @@ onMounted(() => {
   transform: scale(0.9);
 }
 </style>
-

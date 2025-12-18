@@ -13,11 +13,11 @@ import Timer from '@/components/shared/Timer.vue'
         <Timer />
       </div>
     </header>
-    
+
     <main class="game-main">
       <slot />
     </main>
-    
+
     <footer class="game-footer">
       <span class="footer-text">VASION • OPERATION: DIGITAL FORTRESS</span>
     </footer>
@@ -79,10 +79,9 @@ import Timer from '@/components/shared/Timer.vue'
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .header-right {
     align-self: flex-end;
   }
 }
 </style>
-

@@ -19,27 +19,27 @@ const router = createRouter({
       beforeEnter: (to, _from, next) => {
         const playerStore = usePlayerStore()
         const gameStore = useGameStore()
-        
+
         // Ensure player is registered
         if (!playerStore.isRegistered) {
           next({ name: 'intro' })
           return
         }
-        
+
         // Validate level ID
         const levelId = parseInt(to.params.id as string)
         if (isNaN(levelId) || levelId < 1 || levelId > 11) {
           next({ name: 'intro' })
           return
         }
-        
+
         // Check if trying to skip ahead
         if (levelId > 1 && !gameStore.levelsCompleted.includes(levelId - 1)) {
           // Redirect to current level
           next({ name: 'level', params: { id: gameStore.currentLevel.toString() } })
           return
         }
-        
+
         next()
       },
     },
@@ -49,7 +49,7 @@ const router = createRouter({
       component: () => import('@/views/DebriefView.vue'),
       beforeEnter: (_to, _from, next) => {
         const gameStore = useGameStore()
-        
+
         // Ensure game is complete
         if (!gameStore.isComplete) {
           const playerStore = usePlayerStore()
@@ -60,7 +60,7 @@ const router = createRouter({
           }
           return
         }
-        
+
         next()
       },
     },

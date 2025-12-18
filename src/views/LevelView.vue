@@ -27,9 +27,9 @@ let timerInterval: number | null = null
 const elapsedTime = computed(() => {
   // Force recomputation on tick
   void timerTick.value
-  
+
   if (!gameStore.startTime) return '00:00'
-  
+
   const now = new Date()
   const elapsed = Math.floor((now.getTime() - gameStore.startTime.getTime()) / 1000)
   const mins = Math.floor(elapsed / 60)
@@ -39,7 +39,7 @@ const elapsedTime = computed(() => {
 
 onMounted(() => {
   puzzleStore.setPuzzle(levelId.value)
-  
+
   // Start timer interval
   timerInterval = window.setInterval(() => {
     timerTick.value++
@@ -52,9 +52,12 @@ onUnmounted(() => {
   }
 })
 
-watch(() => props.id, (newId) => {
-  puzzleStore.setPuzzle(parseInt(newId) || 1)
-})
+watch(
+  () => props.id,
+  (newId) => {
+    puzzleStore.setPuzzle(parseInt(newId) || 1)
+  },
+)
 </script>
 
 <template>
@@ -65,8 +68,8 @@ watch(() => props.id, (newId) => {
         <div class="progress-info">
           <span class="level-indicator">OBJECTIVE {{ levelId }} OF 11</span>
           <div class="progress-bar">
-            <div 
-              class="progress-bar-fill" 
+            <div
+              class="progress-bar-fill"
               :style="{ width: `${(gameStore.levelsCompleted.length / 11) * 100}%` }"
             ></div>
           </div>
@@ -114,22 +117,21 @@ watch(() => props.id, (newId) => {
 
           <!-- Temporary navigation for testing -->
           <div class="temp-nav">
-            <button 
-              class="btn btn-secondary"
-              @click="router.push({ name: 'intro' })"
-            >
+            <button class="btn btn-secondary" @click="router.push({ name: 'intro' })">
               ← BACK TO INTRO
             </button>
-            <button 
+            <button
               class="btn btn-primary"
-              @click="() => {
-                gameStore.completeLevel(levelId)
-                if (levelId < 11) {
-                  router.push({ name: 'level', params: { id: String(levelId + 1) } })
-                } else {
-                  router.push({ name: 'debrief' })
+              @click="
+                () => {
+                  gameStore.completeLevel(levelId)
+                  if (levelId < 11) {
+                    router.push({ name: 'level', params: { id: String(levelId + 1) } })
+                  } else {
+                    router.push({ name: 'debrief' })
+                  }
                 }
-              }"
+              "
             >
               COMPLETE LEVEL →
             </button>
@@ -263,7 +265,7 @@ watch(() => props.id, (newId) => {
   .temp-nav {
     flex-direction: column;
   }
-  
+
   .temp-nav .btn {
     width: 100%;
   }

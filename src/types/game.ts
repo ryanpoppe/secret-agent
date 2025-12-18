@@ -13,4 +13,3 @@ export const STORAGE_KEYS = {
   GAME: 'secret_agent_game',
   SESSION: 'secret_agent_session',
 } as const
-

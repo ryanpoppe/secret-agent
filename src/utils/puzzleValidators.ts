@@ -5,18 +5,18 @@
 export function validateCaesarCipher(
   input: string,
   expected: string,
-  alternatives?: string[]
+  alternatives?: string[],
 ): boolean {
   const normalized = input.toUpperCase().trim()
-  
+
   if (normalized === expected.toUpperCase()) {
     return true
   }
-  
+
   if (alternatives) {
     return alternatives.some((alt) => normalized === alt.toUpperCase())
   }
-  
+
   return false
 }
 
@@ -59,20 +59,18 @@ export function normalizeAnswer(answer: string): string {
 export function checkAnswer(
   userAnswer: string,
   correctAnswer: string,
-  alternatives?: string[]
+  alternatives?: string[],
 ): boolean {
   const normalized = normalizeAnswer(userAnswer)
-  
+
   if (normalized === normalizeAnswer(correctAnswer)) {
     return true
   }
-  
+
   if (alternatives) {
-    return alternatives.some(
-      (alt) => normalized === normalizeAnswer(alt)
-    )
+    return alternatives.some((alt) => normalized === normalizeAnswer(alt))
   }
-  
+
   return false
 }
 
@@ -82,13 +80,7 @@ export function checkAnswer(
  */
 export function validateIntroPuzzle(answer: string): boolean {
   const normalized = normalizeAnswer(answer)
-  const acceptableAnswers = [
-    'PRINT SERVERS ARE THE WEAKEST LINK',
-    'PRINTSERVERSARETHEWEAKESTLINK',
-  ]
-  
-  return acceptableAnswers.some((acceptable) => 
-    normalized === normalizeAnswer(acceptable)
-  )
-}
+  const acceptableAnswers = ['PRINT SERVERS ARE THE WEAKEST LINK', 'PRINTSERVERSARETHEWEAKESTLINK']
 
+  return acceptableAnswers.some((acceptable) => normalized === normalizeAnswer(acceptable))
+}

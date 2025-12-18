@@ -56,7 +56,7 @@ export const useGameStore = defineStore('game', () => {
     if (!levelsCompleted.value.includes(levelId)) {
       levelsCompleted.value.push(levelId)
     }
-    
+
     if (levelId < 11) {
       currentLevel.value = levelId + 1
     } else {
@@ -152,4 +152,3 @@ export const useGameStore = defineStore('game', () => {
     resetGame,
   }
 })
-

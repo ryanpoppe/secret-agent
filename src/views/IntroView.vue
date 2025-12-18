@@ -95,16 +95,16 @@ function startCountdown() {
 
 function validateForm() {
   let valid = true
-  
+
   nameError.value = ''
   emailError.value = ''
   companyError.value = ''
-  
+
   if (!agentName.value.trim()) {
     nameError.value = 'Agent codename required'
     valid = false
   }
-  
+
   if (!agentEmail.value.trim()) {
     emailError.value = 'Secure channel required'
     valid = false
@@ -112,23 +112,23 @@ function validateForm() {
     emailError.value = 'Invalid communication channel format'
     valid = false
   }
-  
+
   if (!agentCompany.value.trim()) {
     companyError.value = 'Organization affiliation required'
     valid = false
   }
-  
+
   return valid
 }
 
 function checkPuzzleAnswer() {
   puzzleError.value = ''
-  
+
   if (!decryptedAnswer.value.trim()) {
     puzzleError.value = 'Decryption required for verification'
     return
   }
-  
+
   if (validateIntroPuzzle(decryptedAnswer.value)) {
     isVerified.value = true
     puzzleError.value = ''
@@ -147,19 +147,19 @@ async function beginMission() {
     puzzleError.value = 'Complete the decryption challenge first'
     return
   }
-  
+
   isSubmitting.value = true
-  
+
   // Register player
   playerStore.registerPlayer({
     name: agentName.value.trim(),
     email: agentEmail.value.trim(),
     company: agentCompany.value.trim(),
   })
-  
+
   // Show welcome message
   showWelcome.value = true
-  
+
   // Wait for animation, then start game
   setTimeout(() => {
     gameStore.startGame()
@@ -171,7 +171,7 @@ onMounted(() => {
   // Check for existing session
   playerStore.loadFromStorage()
   gameStore.loadFromStorage()
-  
+
   // If already playing, redirect to current level
   if (playerStore.isRegistered && gameStore.currentLevel > 0) {
     if (gameStore.isComplete) {
@@ -181,7 +181,7 @@ onMounted(() => {
     }
     return
   }
-  
+
   // Start animations
   setTimeout(() => {
     startTypingAnimation()
@@ -250,7 +250,9 @@ onUnmounted(() => {
             <div class="meta-item countdown-item">
               <span class="meta-label">TIME REMAINING:</span>
               <span class="meta-value countdown">
-                {{ String(countdownHours).padStart(2, '0') }}:{{ String(countdownMinutes).padStart(2, '0') }}:{{ String(countdownSeconds).padStart(2, '0') }}
+                {{ String(countdownHours).padStart(2, '0') }}:{{
+                  String(countdownMinutes).padStart(2, '0')
+                }}:{{ String(countdownSeconds).padStart(2, '0') }}
               </span>
             </div>
           </div>
@@ -260,29 +262,45 @@ onUnmounted(() => {
           <!-- Mission briefing -->
           <div class="mission-brief">
             <h2 class="section-title">MESSAGE BEGINS:</h2>
-            
+
             <p class="mission-text">Agent Zero,</p>
-            
+
             <p class="mission-text">
-              Intelligence reports indicate <strong class="highlight">Apex Industries'</strong> legacy print 
-              infrastructure has been compromised. Enemy operatives have identified critical vulnerabilities 
-              in their systems.
+              Intelligence reports indicate
+              <strong class="highlight">Apex Industries'</strong> legacy print infrastructure has
+              been compromised. Enemy operatives have identified critical vulnerabilities in their
+              systems.
             </p>
 
             <div class="vulnerability-list">
               <h3 class="list-title">Our analysis reveals:</h3>
               <ul>
-                <li><span class="bullet">▸</span> <strong>10+ legacy print servers</strong> creating multiple attack vectors</li>
-                <li><span class="bullet">▸</span> <strong>No zero-trust security protocols</strong> in place</li>
-                <li><span class="bullet">▸</span> <strong>Separate backend and frontend systems</strong> costing $30,000+ annually</li>
-                <li><span class="bullet">▸</span> <strong>No encryption</strong> for remote printing operations</li>
-                <li><span class="bullet">▸</span> <strong>Manual processes</strong> causing security gaps</li>
+                <li>
+                  <span class="bullet">▸</span> <strong>10+ legacy print servers</strong> creating
+                  multiple attack vectors
+                </li>
+                <li>
+                  <span class="bullet">▸</span> <strong>No zero-trust security protocols</strong> in
+                  place
+                </li>
+                <li>
+                  <span class="bullet">▸</span>
+                  <strong>Separate backend and frontend systems</strong> costing $30,000+ annually
+                </li>
+                <li>
+                  <span class="bullet">▸</span> <strong>No encryption</strong> for remote printing
+                  operations
+                </li>
+                <li>
+                  <span class="bullet">▸</span> <strong>Manual processes</strong> causing security
+                  gaps
+                </li>
               </ul>
             </div>
 
             <p class="mission-text urgent">
-              You have <strong class="countdown-text">24 hours</strong> to deploy Intelligent Print Automation 
-              before the coordinated cyberattack exploits these weaknesses.
+              You have <strong class="countdown-text">24 hours</strong> to deploy Intelligent Print
+              Automation before the coordinated cyberattack exploits these weaknesses.
             </p>
           </div>
 
@@ -291,7 +309,7 @@ onUnmounted(() => {
           <!-- Mission objectives -->
           <div class="objectives-section">
             <h2 class="section-title">YOUR MISSION:</h2>
-            
+
             <div class="objectives-grid">
               <div class="objective-phase">
                 <h3 class="phase-title">PHASE 1: MODERNIZATION</h3>
@@ -301,31 +319,41 @@ onUnmounted(() => {
                   <li><span class="check">✓</span> Establish agnostic technology support</li>
                 </ul>
               </div>
-              
+
               <div class="objective-phase">
                 <h3 class="phase-title">PHASE 2: ZERO TRUST SECURITY</h3>
                 <ul class="phase-items">
-                  <li><span class="check">✓</span> Implement "never trust, always verify" protocols</li>
-                  <li><span class="check">✓</span> Deploy secure gateway for off-network printing</li>
+                  <li>
+                    <span class="check">✓</span> Implement "never trust, always verify" protocols
+                  </li>
+                  <li>
+                    <span class="check">✓</span> Deploy secure gateway for off-network printing
+                  </li>
                   <li><span class="check">✓</span> Activate enterprise security certifications</li>
                 </ul>
               </div>
-              
+
               <div class="objective-phase">
                 <h3 class="phase-title">PHASE 3: USER EXPERIENCE</h3>
                 <ul class="phase-items">
                   <li><span class="check">✓</span> Enable secure release printing</li>
                   <li><span class="check">✓</span> Deploy simplified scanning to cloud</li>
-                  <li><span class="check">✓</span> Establish guest printing without network access</li>
+                  <li>
+                    <span class="check">✓</span> Establish guest printing without network access
+                  </li>
                 </ul>
               </div>
-              
+
               <div class="objective-phase">
                 <h3 class="phase-title">PHASE 4: CONSOLIDATION</h3>
                 <ul class="phase-items">
-                  <li><span class="check">✓</span> Unify backend (EHR/ERP) and frontend printing</li>
+                  <li>
+                    <span class="check">✓</span> Unify backend (EHR/ERP) and frontend printing
+                  </li>
                   <li><span class="check">✓</span> Activate AI-powered management</li>
-                  <li><span class="check">✓</span> Deploy API Cloud Link for cloud-to-local printing</li>
+                  <li>
+                    <span class="check">✓</span> Deploy API Cloud Link for cloud-to-local printing
+                  </li>
                 </ul>
               </div>
             </div>
@@ -362,10 +390,10 @@ onUnmounted(() => {
       <Transition name="slide-fade">
         <div v-if="showForm" class="identification-section">
           <div class="divider"></div>
-          
+
           <h2 class="section-title">AGENT IDENTIFICATION</h2>
           <p class="section-subtitle">Before proceeding, we need to establish your identity.</p>
-          
+
           <form class="agent-form" @submit.prevent>
             <div class="form-group">
               <label class="form-label" for="agentName">AGENT CODENAME</label>
@@ -380,7 +408,7 @@ onUnmounted(() => {
               />
               <span v-if="nameError" class="form-error">{{ nameError }}</span>
             </div>
-            
+
             <div class="form-group">
               <label class="form-label" for="agentEmail">SECURE CONTACT CHANNEL</label>
               <input
@@ -394,7 +422,7 @@ onUnmounted(() => {
               />
               <span v-if="emailError" class="form-error">{{ emailError }}</span>
             </div>
-            
+
             <div class="form-group">
               <label class="form-label" for="agentCompany">ORGANIZATION AFFILIATION</label>
               <input
@@ -416,10 +444,10 @@ onUnmounted(() => {
       <Transition name="slide-fade">
         <div v-if="showPuzzle" class="puzzle-section">
           <div class="divider"></div>
-          
+
           <h2 class="section-title">INITIAL DECRYPTION CHALLENGE</h2>
           <p class="section-subtitle">To verify your clearance, decrypt this transmission:</p>
-          
+
           <div class="cipher-box">
             <div class="cipher-label">ENCRYPTED MESSAGE:</div>
             <div class="cipher-text">SQJOU TFSWFST BSF UIF XFBLPTU MJOL</div>
@@ -428,7 +456,7 @@ onUnmounted(() => {
               <span class="cipher-hint">Shift each letter back by 1 position</span>
             </div>
           </div>
-          
+
           <div class="hint-box">
             <div class="hint-title">HINT:</div>
             <ul class="hint-list">
@@ -437,10 +465,12 @@ onUnmounted(() => {
               <li>J → I (shift back 1)</li>
             </ul>
           </div>
-          
+
           <div class="answer-section">
             <label class="form-label" for="decryptedAnswer">ENTER DECRYPTED MESSAGE:</label>
-            <div class="answer-template">P _ _ _ _   S _ _ _ _ _ _   A _ _   T _ _   W _ _ _ _ _ _   L _ _ _</div>
+            <div class="answer-template">
+              P _ _ _ _ S _ _ _ _ _ _ A _ _ T _ _ W _ _ _ _ _ _ L _ _ _
+            </div>
             <input
               id="decryptedAnswer"
               v-model="decryptedAnswer"
@@ -455,7 +485,7 @@ onUnmounted(() => {
             <span v-if="isVerified" class="verification-success">
               <span class="success-icon">✓</span> CLEARANCE VERIFIED
             </span>
-            
+
             <button
               v-if="!isVerified"
               type="button"
@@ -472,14 +502,14 @@ onUnmounted(() => {
       <Transition name="slide-fade">
         <div v-if="showPuzzle" class="proceed-section">
           <div class="divider"></div>
-          
+
           <div class="quote-box">
             <p class="quote-text">
-              "In the world of IT security, trust is a vulnerability.<br/>
+              "In the world of IT security, trust is a vulnerability.<br />
               Zero trust is the only path to true protection."
             </p>
           </div>
-          
+
           <button
             class="btn btn-primary btn-lg btn-block proceed-btn"
             :disabled="!canProceed || isSubmitting"
@@ -491,7 +521,7 @@ onUnmounted(() => {
               PROCEED TO OBJECTIVE 1
             </span>
           </button>
-          
+
           <p class="self-destruct animate-pulse">
             This transmission will self-destruct upon mission commencement...
           </p>
@@ -574,8 +604,12 @@ onUnmounted(() => {
 }
 
 @keyframes loadingProgress {
-  0% { width: 0; }
-  100% { width: 100%; }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 /* Header */
@@ -1030,15 +1064,14 @@ onUnmounted(() => {
   .intro-view {
     padding: var(--space-md) 0;
   }
-  
+
   .meta-label {
     min-width: 100px;
   }
-  
+
   .hint-list {
     flex-direction: column;
     gap: var(--space-xs);
   }
 }
 </style>
-

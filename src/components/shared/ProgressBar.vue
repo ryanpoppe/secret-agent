@@ -16,10 +16,7 @@ const progressPercent = computed(() => {
       <span class="progress-text">{{ gameStore.levelsCompleted.length }}/11 OBJECTIVES</span>
     </div>
     <div class="progress-track">
-      <div 
-        class="progress-fill" 
-        :style="{ width: `${progressPercent}%` }"
-      ></div>
+      <div class="progress-fill" :style="{ width: `${progressPercent}%` }"></div>
     </div>
   </div>
 </template>
@@ -74,4 +71,3 @@ const progressPercent = computed(() => {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
 }
 </style>
-

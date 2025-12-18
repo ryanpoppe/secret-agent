@@ -159,9 +159,7 @@ export function exportLeadsAsCsv(): string {
 
   const csvContent = [
     headers.join(','),
-    ...rows.map((row) =>
-      row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')
-    ),
+    ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')),
   ].join('\n')
 
   return csvContent
@@ -184,4 +182,3 @@ export function downloadLeadsCsv(): void {
   link.click()
   URL.revokeObjectURL(link.href)
 }
-

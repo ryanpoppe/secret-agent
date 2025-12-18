@@ -39,12 +39,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-primary),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
 }
 
 .panel-header {
@@ -243,12 +238,7 @@
 /* Divider */
 .divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-border-bright),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-border-bright), transparent);
   margin: var(--space-xl) 0;
 }
 
@@ -276,11 +266,11 @@
   .container {
     padding: var(--space-sm);
   }
-  
+
   .panel {
     padding: var(--space-md);
   }
-  
+
   .btn-lg {
     padding: var(--space-md) var(--space-lg);
   }
