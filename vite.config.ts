@@ -6,6 +6,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Base URL for GitHub Pages deployment
+  // Change this to match your repository name
+  base: '/code-camp-2025/',
   plugins: [
     vue(),
     vueDevTools(),
