@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { usePuzzleStore } from '@/stores/puzzle'
 import Level1DocumentSort from '@/components/puzzles/Level1DocumentSort.vue'
+import Level2Architecture from '@/components/puzzles/Level2Architecture.vue'
 
 const props = defineProps<{
   id: string
@@ -83,6 +84,15 @@ watch(() => props.id, (newId) => {
           <p class="mission-brief">Understanding IPA Requirements</p>
         </div>
         <Level1DocumentSort />
+      </div>
+
+      <!-- Level 2: Architecture Building -->
+      <div v-else-if="levelId === 2" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">ELIMINATE THE THREAT</h1>
+          <p class="mission-brief">Removing Legacy Print Servers</p>
+        </div>
+        <Level2Architecture />
       </div>
 
       <!-- Placeholder for other levels -->
