@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { usePuzzleStore } from '@/stores/puzzle'
+import Level1DocumentSort from '@/components/puzzles/Level1DocumentSort.vue'
 
 const props = defineProps<{
   id: string
@@ -75,8 +76,17 @@ watch(() => props.id, (newId) => {
         </div>
       </header>
 
-      <!-- Puzzle content placeholder -->
-      <div class="puzzle-container">
+      <!-- Level 1: Document Sorting -->
+      <div v-if="levelId === 1" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">INTELLIGENCE BRIEFING</h1>
+          <p class="mission-brief">Understanding IPA Requirements</p>
+        </div>
+        <Level1DocumentSort />
+      </div>
+
+      <!-- Placeholder for other levels -->
+      <div v-else class="puzzle-container">
         <div class="panel">
           <div class="mission-header">
             <h1 class="mission-title">{{ currentPuzzle?.title || 'LOADING...' }}</h1>
@@ -182,6 +192,10 @@ watch(() => props.id, (newId) => {
   margin: 0 auto;
 }
 
+.puzzle-container-wide {
+  max-width: 1000px;
+}
+
 .mission-header {
   text-align: center;
   margin-bottom: var(--space-xl);
@@ -245,4 +259,3 @@ watch(() => props.id, (newId) => {
   }
 }
 </style>
-

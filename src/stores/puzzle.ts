@@ -6,13 +6,13 @@ import type { Puzzle, PuzzleState } from '@/types/puzzle'
 const puzzleConfigs: Puzzle[] = [
   {
     id: 1,
-    type: 'caesar',
-    title: 'Encrypted Communications',
-    missionBrief: 'Enemy communications intercepted. Decrypt the message using Caesar cipher.',
-    question: 'TFDSFU BHFOU',
-    answer: 'SECRET AGENT',
-    hint: 'Each letter is shifted forward by 1. S→T, E→F, etc.',
-    acceptableAnswers: ['SECRET AGENT', 'SECRETAGENT'],
+    type: 'pattern',
+    title: 'Intelligence Briefing',
+    missionBrief: 'Analyze gold standard RFP requirements for Intelligent Print Automation.',
+    question: 'Sort the intercepted intelligence into the correct categories.',
+    answer: 'DOCUMENT_SORT',
+    hint: 'MODERNIZE = Cloud/Security, CONSOLIDATE = Unified platform, AUTOMATE = AI/Workflows',
+    acceptableAnswers: ['DOCUMENT_SORT'],
   },
   {
     id: 2,
