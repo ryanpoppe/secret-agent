@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { usePuzzleStore } from '@/stores/puzzle'
-import { usePlayerStore } from '@/stores/player'
 
 const props = defineProps<{
   id: string
 }>()
 
-const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
 const puzzleStore = usePuzzleStore()
-const playerStore = usePlayerStore()
 
 const levelId = computed(() => parseInt(props.id) || 1)
 
@@ -21,8 +18,36 @@ const currentPuzzle = computed(() => {
   return puzzleStore.getPuzzleById(levelId.value)
 })
 
+// Live timer - tick every second to update display
+const timerTick = ref(0)
+let timerInterval: number | null = null
+
+const elapsedTime = computed(() => {
+  // Force recomputation on tick
+  void timerTick.value
+  
+  if (!gameStore.startTime) return '00:00'
+  
+  const now = new Date()
+  const elapsed = Math.floor((now.getTime() - gameStore.startTime.getTime()) / 1000)
+  const mins = Math.floor(elapsed / 60)
+  const secs = elapsed % 60
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+})
+
 onMounted(() => {
   puzzleStore.setPuzzle(levelId.value)
+  
+  // Start timer interval
+  timerInterval = window.setInterval(() => {
+    timerTick.value++
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+  }
 })
 
 watch(() => props.id, (newId) => {
@@ -46,7 +71,7 @@ watch(() => props.id, (newId) => {
         </div>
         <div class="timer">
           <span class="timer-label">ELAPSED:</span>
-          <span class="timer-value">{{ gameStore.formattedTime }}</span>
+          <span class="timer-value">{{ elapsedTime }}</span>
         </div>
       </header>
 
