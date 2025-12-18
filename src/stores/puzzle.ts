@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { Puzzle, PuzzleState } from '@/types/puzzle'
+import type { Puzzle } from '@/types/puzzle'
 
 // Puzzle configurations for all 11 levels
 const puzzleConfigs: Puzzle[] = [

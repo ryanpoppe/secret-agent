@@ -1,6 +1,13 @@
 <script setup lang="ts">
+/**
+ * GameTimer - Displays elapsed time during gameplay
+ */
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useGameStore } from '@/stores/game'
+
+defineOptions({
+  name: 'GameTimer',
+})
 
 const gameStore = useGameStore()
 

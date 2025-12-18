@@ -22,7 +22,6 @@ const showPuzzle = ref(false)
 const isVerified = ref(false)
 const showWelcome = ref(false)
 const hasError = ref(false)
-const errorMessage = ref('')
 const isSubmitting = ref(false)
 
 // Countdown timer (cosmetic)

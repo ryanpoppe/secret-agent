@@ -94,6 +94,7 @@ export async function retryFailedSubmissions(): Promise<number> {
 
   for (const submission of failed) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { failedAt, ...data } = submission
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',

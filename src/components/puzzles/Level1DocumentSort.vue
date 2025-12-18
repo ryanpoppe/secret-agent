@@ -130,14 +130,6 @@ const showResults = ref(false)
 const showHint = ref(false)
 
 // Computed
-const totalPlaced = computed(() => {
-  return (
-    placedCards.value.MODERNIZE.length +
-    placedCards.value.CONSOLIDATE.length +
-    placedCards.value.AUTOMATE.length
-  )
-})
-
 const score = computed(() => {
   return Math.round((correctCount.value / 12) * 100)
 })
