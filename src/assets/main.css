@@ -1,35 +1,300 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container utilities */
+.container {
+  width: 100%;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  padding: var(--space-md);
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+.container-sm {
+  max-width: 600px;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+.container-lg {
+  max-width: 1000px;
+}
+
+/* Card/Panel component */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    transparent
+  );
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+/* Terminal-style box */
+.terminal-box {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  font-family: var(--font-mono);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 255, 136, 0.02) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Classified stamp effect */
+.stamp {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-md);
+  border: 2px solid currentColor;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+
+.stamp-classified {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.stamp-top-secret {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.stamp-approved {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Form styling */
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: 1rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-dim);
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input.error {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-dim);
+}
+
+.form-error {
+  margin-top: var(--space-xs);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+}
+
+/* Button variants */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: var(--space-md) var(--space-xl);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  min-height: 48px;
+}
+
+.btn-primary {
+  color: var(--color-background);
+  background: var(--color-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #00ffaa;
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  color: var(--color-primary);
+  background: transparent;
+  border: 2px solid var(--color-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-primary-dim);
+  box-shadow: var(--shadow-glow-sm);
+}
+
+.btn-danger {
+  color: var(--color-text);
+  background: var(--color-accent);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #ff3388;
+  box-shadow: 0 0 20px var(--color-accent-dim);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-lg {
+  font-size: 1rem;
+  padding: var(--space-lg) var(--space-2xl);
+  min-height: 56px;
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* Progress indicator */
+.progress-bar {
+  height: 4px;
+  background: var(--color-surface);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: 2px;
+  transition: width var(--transition-normal);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border-bright),
+    transparent
+  );
+  margin: var(--space-xl) 0;
+}
+
+/* Mission brief styling */
+.mission-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.mission-title {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  color: var(--color-primary);
+  text-shadow: var(--text-shadow-glow);
+  margin-bottom: var(--space-sm);
+}
+
+.mission-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.2em;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-sm);
+  }
+  
+  .panel {
+    padding: var(--space-md);
+  }
+  
+  .btn-lg {
+    padding: var(--space-md) var(--space-lg);
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
+/* Hide on mobile/desktop */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
   }
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
   }
 }

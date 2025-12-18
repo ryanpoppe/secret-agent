@@ -1,0 +1,223 @@
+<script setup lang="ts">
+import { computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useGameStore } from '@/stores/game'
+import { usePuzzleStore } from '@/stores/puzzle'
+import { usePlayerStore } from '@/stores/player'
+
+const props = defineProps<{
+  id: string
+}>()
+
+const route = useRoute()
+const router = useRouter()
+const gameStore = useGameStore()
+const puzzleStore = usePuzzleStore()
+const playerStore = usePlayerStore()
+
+const levelId = computed(() => parseInt(props.id) || 1)
+
+const currentPuzzle = computed(() => {
+  return puzzleStore.getPuzzleById(levelId.value)
+})
+
+onMounted(() => {
+  puzzleStore.setPuzzle(levelId.value)
+})
+
+watch(() => props.id, (newId) => {
+  puzzleStore.setPuzzle(parseInt(newId) || 1)
+})
+</script>
+
+<template>
+  <div class="level-view">
+    <div class="container">
+      <!-- Progress header -->
+      <header class="level-header">
+        <div class="progress-info">
+          <span class="level-indicator">OBJECTIVE {{ levelId }} OF 11</span>
+          <div class="progress-bar">
+            <div 
+              class="progress-bar-fill" 
+              :style="{ width: `${(gameStore.levelsCompleted.length / 11) * 100}%` }"
+            ></div>
+          </div>
+        </div>
+        <div class="timer">
+          <span class="timer-label">ELAPSED:</span>
+          <span class="timer-value">{{ gameStore.formattedTime }}</span>
+        </div>
+      </header>
+
+      <!-- Puzzle content placeholder -->
+      <div class="puzzle-container">
+        <div class="panel">
+          <div class="mission-header">
+            <h1 class="mission-title">{{ currentPuzzle?.title || 'LOADING...' }}</h1>
+            <p class="mission-brief">{{ currentPuzzle?.missionBrief || '' }}</p>
+          </div>
+
+          <div class="puzzle-placeholder">
+            <div class="placeholder-icon">🔒</div>
+            <h2>PUZZLE LEVEL {{ levelId }}</h2>
+            <p>Puzzle component coming soon...</p>
+            <p class="puzzle-type" v-if="currentPuzzle">
+              Type: {{ currentPuzzle.type.toUpperCase() }}
+            </p>
+          </div>
+
+          <!-- Temporary navigation for testing -->
+          <div class="temp-nav">
+            <button 
+              class="btn btn-secondary"
+              @click="router.push({ name: 'intro' })"
+            >
+              ← BACK TO INTRO
+            </button>
+            <button 
+              class="btn btn-primary"
+              @click="() => {
+                gameStore.completeLevel(levelId)
+                if (levelId < 11) {
+                  router.push({ name: 'level', params: { id: String(levelId + 1) } })
+                } else {
+                  router.push({ name: 'debrief' })
+                }
+              }"
+            >
+              COMPLETE LEVEL →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.level-view {
+  min-height: 100vh;
+  padding: var(--space-lg) 0;
+}
+
+.level-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.progress-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.level-indicator {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--color-surface);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width 0.5s ease;
+}
+
+.timer {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+}
+
+.timer-label {
+  color: var(--color-text-dim);
+  margin-right: var(--space-sm);
+}
+
+.timer-value {
+  color: var(--color-secondary);
+  letter-spacing: 0.1em;
+}
+
+.puzzle-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.mission-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.mission-title {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.mission-brief {
+  color: var(--color-text-dim);
+  font-size: 0.875rem;
+}
+
+.puzzle-placeholder {
+  text-align: center;
+  padding: var(--space-2xl);
+  background: var(--color-surface-elevated);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xl);
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+}
+
+.puzzle-placeholder h2 {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.puzzle-placeholder p {
+  color: var(--color-text-dim);
+  font-size: 0.875rem;
+}
+
+.puzzle-type {
+  margin-top: var(--space-md);
+  color: var(--color-secondary);
+  font-family: var(--font-mono);
+}
+
+.temp-nav {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: space-between;
+}
+
+@media (max-width: 480px) {
+  .temp-nav {
+    flex-direction: column;
+  }
+  
+  .temp-nav .btn {
+    width: 100%;
+  }
+}
+</style>
+
