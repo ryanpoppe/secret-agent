@@ -417,12 +417,13 @@ function proceed() {
       </div>
 
       <!-- Unified CPA info -->
-      <div v-if="allAuthCompleted && !printQueueVisible" class="info-box">
+      <div v-if="allAuthCompleted" class="info-box">
         <div class="info-header">🎯 UNIFIED CONTROL PANEL APPLICATION (CPA)</div>
         <p>The same interface works across ALL MFD manufacturers:</p>
         <div class="manufacturer-list">
           <span>HP</span><span>Canon</span><span>Xerox</span><span>Ricoh</span>
           <span>Lexmark</span><span>Konica</span><span>Sharp</span><span>Kyocera</span>
+          <span>FujiXerox</span><span>Fujifilm</span><span>Epson</span>
         </div>
         <p class="info-benefit">Users only learn ONE interface. IT only trains users once!</p>
       </div>

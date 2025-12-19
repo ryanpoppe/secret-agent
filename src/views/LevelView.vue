@@ -9,6 +9,7 @@ import Level3Compatibility from '@/components/puzzles/Level3Compatibility.vue'
 import Level4ZeroTrust from '@/components/puzzles/Level4ZeroTrust.vue'
 import Level5Certifications from '@/components/puzzles/Level5Certifications.vue'
 import Level6SecureRelease from '@/components/puzzles/Level6SecureRelease.vue'
+import Level7GuestPrint from '@/components/puzzles/Level7GuestPrint.vue'
 
 const props = defineProps<{
   id: string
@@ -136,6 +137,15 @@ watch(
           <p class="mission-brief">Preventing Document Theft</p>
         </div>
         <Level6SecureRelease />
+      </div>
+
+      <!-- Level 7: Guest Infiltration Prevention -->
+      <div v-else-if="levelId === 7" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">GUEST INFILTRATION PREVENTION</h1>
+          <p class="mission-brief">Secure Guest Printing</p>
+        </div>
+        <Level7GuestPrint />
       </div>
 
       <!-- Placeholder for other levels -->
