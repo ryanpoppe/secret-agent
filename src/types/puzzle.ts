@@ -9,6 +9,7 @@ export type PuzzleType =
   | 'ports'
   | 'logic'
   | 'visual'
+  | 'interactive'
   | 'final'
 
 export interface Puzzle {

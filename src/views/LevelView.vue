@@ -5,6 +5,8 @@ import { useGameStore } from '@/stores/game'
 import { usePuzzleStore } from '@/stores/puzzle'
 import Level1DocumentSort from '@/components/puzzles/Level1DocumentSort.vue'
 import Level2Architecture from '@/components/puzzles/Level2Architecture.vue'
+import Level3Compatibility from '@/components/puzzles/Level3Compatibility.vue'
+import Level4ZeroTrust from '@/components/puzzles/Level4ZeroTrust.vue'
 
 const props = defineProps<{
   id: string
@@ -96,6 +98,24 @@ watch(
           <p class="mission-brief">Removing Legacy Print Servers</p>
         </div>
         <Level2Architecture />
+      </div>
+
+      <!-- Level 3: Compatibility Verification -->
+      <div v-else-if="levelId === 3" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">UNIVERSAL COMPATIBILITY PROTOCOL</h1>
+          <p class="mission-brief">Technology-Agnostic Platform Verification</p>
+        </div>
+        <Level3Compatibility />
+      </div>
+
+      <!-- Level 4: Zero Trust Security -->
+      <div v-else-if="levelId === 4" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">ZERO TRUST INITIALIZATION</h1>
+          <p class="mission-brief">Activating Zero Trust Security</p>
+        </div>
+        <Level4ZeroTrust />
       </div>
 
       <!-- Placeholder for other levels -->
