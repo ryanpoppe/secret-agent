@@ -7,6 +7,7 @@ import Level1DocumentSort from '@/components/puzzles/Level1DocumentSort.vue'
 import Level2Architecture from '@/components/puzzles/Level2Architecture.vue'
 import Level3Compatibility from '@/components/puzzles/Level3Compatibility.vue'
 import Level4ZeroTrust from '@/components/puzzles/Level4ZeroTrust.vue'
+import Level5Certifications from '@/components/puzzles/Level5Certifications.vue'
 
 const props = defineProps<{
   id: string
@@ -116,6 +117,15 @@ watch(
           <p class="mission-brief">Activating Zero Trust Security</p>
         </div>
         <Level4ZeroTrust />
+      </div>
+
+      <!-- Level 5: Certification Vault -->
+      <div v-else-if="levelId === 5" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">CERTIFICATION VAULT</h1>
+          <p class="mission-brief">Security Compliance Verification</p>
+        </div>
+        <Level5Certifications />
       </div>
 
       <!-- Placeholder for other levels -->
