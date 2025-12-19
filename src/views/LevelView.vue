@@ -8,6 +8,7 @@ import Level2Architecture from '@/components/puzzles/Level2Architecture.vue'
 import Level3Compatibility from '@/components/puzzles/Level3Compatibility.vue'
 import Level4ZeroTrust from '@/components/puzzles/Level4ZeroTrust.vue'
 import Level5Certifications from '@/components/puzzles/Level5Certifications.vue'
+import Level6SecureRelease from '@/components/puzzles/Level6SecureRelease.vue'
 
 const props = defineProps<{
   id: string
@@ -126,6 +127,15 @@ watch(
           <p class="mission-brief">Security Compliance Verification</p>
         </div>
         <Level5Certifications />
+      </div>
+
+      <!-- Level 6: Secure Release Protocol -->
+      <div v-else-if="levelId === 6" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">SECURE RELEASE PROTOCOL</h1>
+          <p class="mission-brief">Preventing Document Theft</p>
+        </div>
+        <Level6SecureRelease />
       </div>
 
       <!-- Placeholder for other levels -->
