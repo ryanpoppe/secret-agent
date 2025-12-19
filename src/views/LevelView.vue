@@ -10,6 +10,7 @@ import Level4ZeroTrust from '@/components/puzzles/Level4ZeroTrust.vue'
 import Level5Certifications from '@/components/puzzles/Level5Certifications.vue'
 import Level6SecureRelease from '@/components/puzzles/Level6SecureRelease.vue'
 import Level7GuestPrint from '@/components/puzzles/Level7GuestPrint.vue'
+import Level8AIManagement from '@/components/puzzles/Level8AIManagement.vue'
 
 const props = defineProps<{
   id: string
@@ -146,6 +147,15 @@ watch(
           <p class="mission-brief">Secure Guest Printing</p>
         </div>
         <Level7GuestPrint />
+      </div>
+
+      <!-- Level 8: AI Management Deployment -->
+      <div v-else-if="levelId === 8" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">AI MANAGEMENT DEPLOYMENT</h1>
+          <p class="mission-brief">Intelligent Automation</p>
+        </div>
+        <Level8AIManagement />
       </div>
 
       <!-- Placeholder for other levels -->
