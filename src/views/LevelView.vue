@@ -12,6 +12,7 @@ import Level6SecureRelease from '@/components/puzzles/Level6SecureRelease.vue'
 import Level7GuestPrint from '@/components/puzzles/Level7GuestPrint.vue'
 import Level8AIManagement from '@/components/puzzles/Level8AIManagement.vue'
 import Level9LegacyAnalysis from '@/components/puzzles/Level9LegacyAnalysis.vue'
+import Level10UnifiedOutput from '@/components/puzzles/Level10UnifiedOutput.vue'
 
 const props = defineProps<{
   id: string
@@ -166,6 +167,15 @@ watch(
           <p class="mission-brief">Understanding Output Management Complexity</p>
         </div>
         <Level9LegacyAnalysis />
+      </div>
+
+      <!-- Level 10: Unified Output Platform -->
+      <div v-else-if="levelId === 10" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">UNIFIED OUTPUT PLATFORM</h1>
+          <p class="mission-brief">Consolidating Backend and Frontend</p>
+        </div>
+        <Level10UnifiedOutput />
       </div>
 
       <!-- Placeholder for other levels -->
