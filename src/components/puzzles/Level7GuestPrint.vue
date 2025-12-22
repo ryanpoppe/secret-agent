@@ -303,6 +303,8 @@ function playSound(filename: string) {
 }
 
 function proceed() {
+  // Report score to game store
+  gameStore.setLevelCorrectAnswers(7, correctAnswers.value)
   gameStore.completeLevel(7)
   router.push({ name: 'level', params: { id: '8' } })
 }

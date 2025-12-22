@@ -274,6 +274,8 @@ function playSound(filename: string) {
 }
 
 function proceed() {
+  // Report score to game store
+  gameStore.setLevelCorrectAnswers(10, score.value)
   gameStore.completeLevel(10)
   router.push({ name: 'level', params: { id: '11' } })
 }

@@ -13,6 +13,7 @@ import Level7GuestPrint from '@/components/puzzles/Level7GuestPrint.vue'
 import Level8AIManagement from '@/components/puzzles/Level8AIManagement.vue'
 import Level9LegacyAnalysis from '@/components/puzzles/Level9LegacyAnalysis.vue'
 import Level10UnifiedOutput from '@/components/puzzles/Level10UnifiedOutput.vue'
+import Level11CloudLink from '@/components/puzzles/Level11CloudLink.vue'
 
 const props = defineProps<{
   id: string
@@ -82,9 +83,15 @@ watch(
             ></div>
           </div>
         </div>
-        <div class="timer">
-          <span class="timer-label">ELAPSED:</span>
-          <span class="timer-value">{{ elapsedTime }}</span>
+        <div class="header-stats">
+          <div class="score-display">
+            <span class="stat-label">SCORE:</span>
+            <span class="stat-value score-value">{{ gameStore.totalScore }}</span>
+          </div>
+          <div class="timer">
+            <span class="stat-label">ELAPSED:</span>
+            <span class="stat-value timer-value">{{ elapsedTime }}</span>
+          </div>
         </div>
       </header>
 
@@ -178,6 +185,15 @@ watch(
         <Level10UnifiedOutput />
       </div>
 
+      <!-- Level 11: Cloud Link Activation -->
+      <div v-else-if="levelId === 11" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">CLOUD LINK ACTIVATION</h1>
+          <p class="mission-brief">Cloud-to-Local Printing</p>
+        </div>
+        <Level11CloudLink />
+      </div>
+
       <!-- Placeholder for other levels -->
       <div v-else class="puzzle-container">
         <div class="panel">
@@ -264,19 +280,34 @@ watch(
   transition: width 0.5s ease;
 }
 
+.header-stats {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.score-display,
 .timer {
   font-family: var(--font-display);
   font-size: 0.875rem;
 }
 
-.timer-label {
+.stat-label {
   color: var(--color-text-dim);
   margin-right: var(--space-sm);
 }
 
+.stat-value {
+  letter-spacing: 0.1em;
+}
+
+.score-value {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
 .timer-value {
   color: var(--color-secondary);
-  letter-spacing: 0.1em;
 }
 
 .puzzle-container {

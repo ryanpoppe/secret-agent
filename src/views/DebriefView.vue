@@ -19,6 +19,17 @@ const completionTime = computed(() => {
 
 const levelsCompleted = computed(() => gameStore.levelsCompleted.length)
 const hintsUsed = computed(() => gameStore.hintsUsed.length)
+const scoreBreakdown = computed(() => gameStore.scoreBreakdown)
+
+// Calculate agent rank based on score
+const agentRank = computed(() => {
+  const score = gameStore.totalScore
+  if (score >= 150) return { title: 'ELITE OPERATIVE', class: 'rank-elite' }
+  if (score >= 120) return { title: 'SENIOR AGENT', class: 'rank-senior' }
+  if (score >= 90) return { title: 'FIELD AGENT', class: 'rank-field' }
+  if (score >= 60) return { title: 'JUNIOR AGENT', class: 'rank-junior' }
+  return { title: 'RECRUIT', class: 'rank-recruit' }
+})
 
 async function submitLeadData() {
   const leadData: LeadSubmission = {
@@ -66,6 +77,11 @@ onMounted(() => {
           <h2>MISSION REPORT</h2>
         </div>
 
+        <div class="agent-rank" :class="agentRank.class">
+          <span class="rank-label">AGENT RANK</span>
+          <span class="rank-title">{{ agentRank.title }}</span>
+        </div>
+
         <div class="stats-grid">
           <div class="stat-item">
             <span class="stat-label">AGENT</span>
@@ -83,6 +99,47 @@ onMounted(() => {
             <span class="stat-label">INTEL ASSISTS USED</span>
             <span class="stat-value">{{ hintsUsed }}</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Score Breakdown -->
+      <div class="panel score-panel">
+        <div class="panel-header">
+          <h2>SCORE BREAKDOWN</h2>
+        </div>
+
+        <div class="score-breakdown">
+          <div class="score-row">
+            <span class="score-item-label">Objectives Completed ({{ scoreBreakdown.levelsCompleted }} × 10 pts)</span>
+            <span class="score-item-value positive">+{{ scoreBreakdown.levelPoints }}</span>
+          </div>
+          <div class="score-row">
+            <span class="score-item-label">Correct Answers ({{ scoreBreakdown.correctAnswers }} × 1 pt)</span>
+            <span class="score-item-value positive">+{{ scoreBreakdown.answerPoints }}</span>
+          </div>
+          <div class="score-row" v-if="scoreBreakdown.hintsUsed > 0">
+            <span class="score-item-label">Intel Assists Used ({{ scoreBreakdown.hintsUsed }} × -5 pts)</span>
+            <span class="score-item-value negative">{{ scoreBreakdown.hintPenalty }}</span>
+          </div>
+          <div class="score-row" v-if="scoreBreakdown.hiddenBonus">
+            <span class="score-item-label">🎁 Hidden Bonus Found</span>
+            <span class="score-item-value bonus">+{{ scoreBreakdown.bonusPoints }}</span>
+          </div>
+          <div class="score-divider"></div>
+          <div class="score-row total">
+            <span class="score-item-label">TOTAL SCORE</span>
+            <span class="score-item-value total-value">{{ scoreBreakdown.total }}</span>
+          </div>
+        </div>
+
+        <div class="score-rubric">
+          <h4>SCORING RUBRIC</h4>
+          <ul>
+            <li><span class="rubric-points">+10</span> points per objective completed</li>
+            <li><span class="rubric-points">+1</span> point per correct quiz answer</li>
+            <li><span class="rubric-points negative">-5</span> points per intel assist used</li>
+            <li><span class="rubric-points bonus">+10</span> points for hidden bonus</li>
+          </ul>
         </div>
       </div>
 
@@ -219,6 +276,170 @@ onMounted(() => {
 
 .time-value {
   color: var(--color-secondary);
+}
+
+/* Agent rank */
+.agent-rank {
+  text-align: center;
+  padding: var(--space-lg);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  border: 2px solid var(--color-border);
+}
+
+.rank-label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.2em;
+  margin-bottom: var(--space-xs);
+}
+
+.rank-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.rank-elite {
+  border-color: #ffd700;
+}
+.rank-elite .rank-title {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.rank-senior {
+  border-color: var(--color-primary);
+}
+.rank-senior .rank-title {
+  color: var(--color-primary);
+}
+
+.rank-field {
+  border-color: var(--color-secondary);
+}
+.rank-field .rank-title {
+  color: var(--color-secondary);
+}
+
+.rank-junior {
+  border-color: var(--color-warning);
+}
+.rank-junior .rank-title {
+  color: var(--color-warning);
+}
+
+.rank-recruit {
+  border-color: var(--color-text-dim);
+}
+.rank-recruit .rank-title {
+  color: var(--color-text-dim);
+}
+
+/* Score panel */
+.score-panel {
+  margin-bottom: var(--space-xl);
+  animation: slideIn 0.5s ease-out 0.3s both;
+}
+
+.score-breakdown {
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+}
+
+.score-item-label {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.score-item-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.score-item-value.positive {
+  color: var(--color-primary);
+}
+
+.score-item-value.negative {
+  color: var(--color-accent);
+}
+
+.score-item-value.bonus {
+  color: #ffd700;
+}
+
+.score-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-md) 0;
+}
+
+.score-row.total {
+  padding-top: var(--space-md);
+}
+
+.score-row.total .score-item-label {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.score-row.total .total-value {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  text-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.score-rubric {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+}
+
+.score-rubric h4 {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-sm);
+}
+
+.score-rubric ul {
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+.score-rubric li {
+  margin-bottom: var(--space-xs);
+}
+
+.rubric-points {
+  display: inline-block;
+  min-width: 30px;
+  font-family: var(--font-display);
+  color: var(--color-primary);
+}
+
+.rubric-points.negative {
+  color: var(--color-accent);
+}
+
+.rubric-points.bonus {
+  color: #ffd700;
 }
 
 /* Next steps */

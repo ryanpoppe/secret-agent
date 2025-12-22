@@ -178,6 +178,8 @@ function playSound(filename: string) {
 }
 
 function proceed() {
+  // Report score to game store (4 questions total)
+  gameStore.setLevelCorrectAnswers(9, correctProblems.value + (teamCorrect.value ? 1 : 0) + (architectureAnswer.value === true ? 1 : 0) + (costCorrect.value ? 1 : 0))
   gameStore.completeLevel(9)
   router.push({ name: 'level', params: { id: '10' } })
 }

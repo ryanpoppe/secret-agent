@@ -286,6 +286,8 @@ function revealHint() {
 }
 
 function proceed() {
+  // Report score to game store (verified items + correct questions)
+  gameStore.setLevelCorrectAnswers(3, totalCorrect.value)
   gameStore.completeLevel(3)
   router.push({ name: 'level', params: { id: '4' } })
 }

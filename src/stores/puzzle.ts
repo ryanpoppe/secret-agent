@@ -106,13 +106,13 @@ const puzzleConfigs: Puzzle[] = [
   },
   {
     id: 11,
-    type: 'final',
-    title: 'Final Transmission',
-    missionBrief: 'Decrypt this final message to complete your mission.',
-    question: 'NJTTJPO DPNQMFUF',
-    answer: 'MISSION COMPLETE',
-    hint: 'Caesar cipher, shift back by 1.',
-    acceptableAnswers: ['MISSION COMPLETE', 'MISSIONCOMPLETE'],
+    type: 'interactive',
+    title: 'Cloud Link Activation',
+    missionBrief: 'Enable cloud ERP/EHR to print to local printers using API Cloud Link.',
+    question: 'Build architecture, decrypt API payload, configure Edge Service, and verify zero-infrastructure.',
+    answer: 'CLOUD_LINK',
+    hint: 'Flow: Cloud EHR → API Cloud Link → Secure Gateway → Edge Service → Local Printer. No VPN needed!',
+    acceptableAnswers: ['CLOUD_LINK', 'API_CLOUD_LINK'],
   },
 ]
 

@@ -3,6 +3,12 @@ import { defineStore } from 'pinia'
 import type { GameState } from '@/types/game'
 import { STORAGE_KEYS } from '@/types/game'
 
+// Scoring constants
+const POINTS_PER_LEVEL = 10
+const POINTS_PER_CORRECT_ANSWER = 1
+const POINTS_HINT_PENALTY = -5
+const POINTS_HIDDEN_BONUS = 10
+
 export const useGameStore = defineStore('game', () => {
   // State
   const currentLevel = ref(0) // 0 = intro, 1-11 = levels, 12 = debrief
@@ -12,6 +18,10 @@ export const useGameStore = defineStore('game', () => {
   const hintsUsed = ref<number[]>([])
   const isComplete = ref(false)
   const totalAttempts = ref(0)
+  
+  // Scoring state
+  const correctAnswers = ref<Record<number, number>>({}) // levelId -> count of correct answers
+  const hiddenBonusFound = ref(false)
 
   // Getters
   const completionPercentage = computed(() => {
@@ -30,6 +40,43 @@ export const useGameStore = defineStore('game', () => {
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   })
+  
+  // Scoring getters
+  const levelCompletionPoints = computed(() => {
+    return levelsCompleted.value.length * POINTS_PER_LEVEL
+  })
+  
+  const correctAnswerPoints = computed(() => {
+    return Object.values(correctAnswers.value).reduce((sum, count) => sum + count * POINTS_PER_CORRECT_ANSWER, 0)
+  })
+  
+  const hintPenaltyPoints = computed(() => {
+    return hintsUsed.value.length * POINTS_HINT_PENALTY
+  })
+  
+  const hiddenBonusPoints = computed(() => {
+    return hiddenBonusFound.value ? POINTS_HIDDEN_BONUS : 0
+  })
+  
+  const totalScore = computed(() => {
+    return Math.max(0, levelCompletionPoints.value + correctAnswerPoints.value + hintPenaltyPoints.value + hiddenBonusPoints.value)
+  })
+  
+  const totalCorrectAnswers = computed(() => {
+    return Object.values(correctAnswers.value).reduce((sum, count) => sum + count, 0)
+  })
+  
+  const scoreBreakdown = computed(() => ({
+    levelsCompleted: levelsCompleted.value.length,
+    levelPoints: levelCompletionPoints.value,
+    correctAnswers: totalCorrectAnswers.value,
+    answerPoints: correctAnswerPoints.value,
+    hintsUsed: hintsUsed.value.length,
+    hintPenalty: hintPenaltyPoints.value,
+    hiddenBonus: hiddenBonusFound.value,
+    bonusPoints: hiddenBonusPoints.value,
+    total: totalScore.value,
+  }))
 
   const gameState = computed<GameState>(() => ({
     currentLevel: currentLevel.value,
@@ -49,6 +96,8 @@ export const useGameStore = defineStore('game', () => {
     hintsUsed.value = []
     isComplete.value = false
     totalAttempts.value = 0
+    correctAnswers.value = {}
+    hiddenBonusFound.value = false
     saveToStorage()
   }
 
@@ -79,6 +128,24 @@ export const useGameStore = defineStore('game', () => {
     totalAttempts.value++
     saveToStorage()
   }
+  
+  function addCorrectAnswer(levelId: number, count: number = 1) {
+    if (!correctAnswers.value[levelId]) {
+      correctAnswers.value[levelId] = 0
+    }
+    correctAnswers.value[levelId] += count
+    saveToStorage()
+  }
+  
+  function setLevelCorrectAnswers(levelId: number, count: number) {
+    correctAnswers.value[levelId] = count
+    saveToStorage()
+  }
+  
+  function findHiddenBonus() {
+    hiddenBonusFound.value = true
+    saveToStorage()
+  }
 
   function goToLevel(levelId: number) {
     currentLevel.value = levelId
@@ -94,6 +161,8 @@ export const useGameStore = defineStore('game', () => {
       hintsUsed: hintsUsed.value,
       isComplete: isComplete.value,
       totalAttempts: totalAttempts.value,
+      correctAnswers: correctAnswers.value,
+      hiddenBonusFound: hiddenBonusFound.value,
     }
     localStorage.setItem(STORAGE_KEYS.GAME, JSON.stringify(data))
   }
@@ -110,6 +179,8 @@ export const useGameStore = defineStore('game', () => {
         hintsUsed.value = data.hintsUsed || []
         isComplete.value = data.isComplete || false
         totalAttempts.value = data.totalAttempts || 0
+        correctAnswers.value = data.correctAnswers || {}
+        hiddenBonusFound.value = data.hiddenBonusFound || false
       } catch (e) {
         console.error('Failed to parse game data from storage:', e)
       }
@@ -124,6 +195,8 @@ export const useGameStore = defineStore('game', () => {
     hintsUsed.value = []
     isComplete.value = false
     totalAttempts.value = 0
+    correctAnswers.value = {}
+    hiddenBonusFound.value = false
     localStorage.removeItem(STORAGE_KEYS.GAME)
   }
 
@@ -136,16 +209,28 @@ export const useGameStore = defineStore('game', () => {
     hintsUsed,
     isComplete,
     totalAttempts,
+    correctAnswers,
+    hiddenBonusFound,
     // Getters
     completionPercentage,
     elapsedTime,
     formattedTime,
     gameState,
+    totalScore,
+    scoreBreakdown,
+    levelCompletionPoints,
+    correctAnswerPoints,
+    hintPenaltyPoints,
+    hiddenBonusPoints,
+    totalCorrectAnswers,
     // Actions
     startGame,
     completeLevel,
     useHint,
     addAttempt,
+    addCorrectAnswer,
+    setLevelCorrectAnswers,
+    findHiddenBonus,
     goToLevel,
     saveToStorage,
     loadFromStorage,
