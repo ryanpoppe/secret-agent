@@ -47,7 +47,15 @@ export const useGameStore = defineStore('game', () => {
   })
   
   const correctAnswerPoints = computed(() => {
-    return Object.values(correctAnswers.value).reduce((sum, count) => sum + count * POINTS_PER_CORRECT_ANSWER, 0)
+    // Exclude Level 12 bonus from regular answer points
+    return Object.entries(correctAnswers.value)
+      .filter(([levelId]) => levelId !== '12')
+      .reduce((sum, [, count]) => sum + count * POINTS_PER_CORRECT_ANSWER, 0)
+  })
+  
+  // Level 12 bonus points (separate from regular scoring)
+  const level12BonusPoints = computed(() => {
+    return correctAnswers.value[12] || 0
   })
   
   const hintPenaltyPoints = computed(() => {
@@ -59,11 +67,14 @@ export const useGameStore = defineStore('game', () => {
   })
   
   const totalScore = computed(() => {
-    return Math.max(0, levelCompletionPoints.value + correctAnswerPoints.value + hintPenaltyPoints.value + hiddenBonusPoints.value)
+    return Math.max(0, levelCompletionPoints.value + correctAnswerPoints.value + hintPenaltyPoints.value + hiddenBonusPoints.value + level12BonusPoints.value)
   })
   
   const totalCorrectAnswers = computed(() => {
-    return Object.values(correctAnswers.value).reduce((sum, count) => sum + count, 0)
+    // Exclude Level 12 bonus from correct answer count
+    return Object.entries(correctAnswers.value)
+      .filter(([levelId]) => levelId !== '12')
+      .reduce((sum, [, count]) => sum + count, 0)
   })
   
   const scoreBreakdown = computed(() => ({
@@ -75,6 +86,8 @@ export const useGameStore = defineStore('game', () => {
     hintPenalty: hintPenaltyPoints.value,
     hiddenBonus: hiddenBonusFound.value,
     bonusPoints: hiddenBonusPoints.value,
+    level12Completed: levelsCompleted.value.includes(12),
+    level12Bonus: level12BonusPoints.value,
     total: totalScore.value,
   }))
 
@@ -222,6 +235,7 @@ export const useGameStore = defineStore('game', () => {
     correctAnswerPoints,
     hintPenaltyPoints,
     hiddenBonusPoints,
+    level12BonusPoints,
     totalCorrectAnswers,
     // Actions
     startGame,

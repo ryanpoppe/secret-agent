@@ -125,6 +125,10 @@ onMounted(() => {
             <span class="score-item-label">🎁 Hidden Bonus Found</span>
             <span class="score-item-value bonus">+{{ scoreBreakdown.bonusPoints }}</span>
           </div>
+          <div class="score-row" v-if="scoreBreakdown.level12Completed">
+            <span class="score-item-label">🧬 Bonus Mission Complete (Origin Protocol)</span>
+            <span class="score-item-value bonus">+{{ scoreBreakdown.level12Bonus }}</span>
+          </div>
           <div class="score-divider"></div>
           <div class="score-row total">
             <span class="score-item-label">TOTAL SCORE</span>
@@ -139,6 +143,7 @@ onMounted(() => {
             <li><span class="rubric-points">+1</span> point per correct quiz answer</li>
             <li><span class="rubric-points negative">-5</span> points per intel assist used</li>
             <li><span class="rubric-points bonus">+10</span> points for hidden bonus</li>
+            <li><span class="rubric-points bonus">+25</span> points for bonus mission (or +10 with intel assist)</li>
           </ul>
         </div>
       </div>

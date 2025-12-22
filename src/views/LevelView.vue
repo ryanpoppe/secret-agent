@@ -14,6 +14,7 @@ import Level8AIManagement from '@/components/puzzles/Level8AIManagement.vue'
 import Level9LegacyAnalysis from '@/components/puzzles/Level9LegacyAnalysis.vue'
 import Level10UnifiedOutput from '@/components/puzzles/Level10UnifiedOutput.vue'
 import Level11CloudLink from '@/components/puzzles/Level11CloudLink.vue'
+import Level12OriginProtocol from '@/components/puzzles/Level12OriginProtocol.vue'
 
 const props = defineProps<{
   id: string
@@ -192,6 +193,15 @@ watch(
           <p class="mission-brief">Cloud-to-Local Printing</p>
         </div>
         <Level11CloudLink />
+      </div>
+
+      <!-- Level 12: Bonus - Origin Protocol -->
+      <div v-else-if="levelId === 12" class="puzzle-container puzzle-container-wide">
+        <div class="mission-header">
+          <h1 class="mission-title">THE ORIGIN PROTOCOL</h1>
+          <p class="mission-brief">Bonus Challenge</p>
+        </div>
+        <Level12OriginProtocol />
       </div>
 
       <!-- Placeholder for other levels -->

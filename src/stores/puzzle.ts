@@ -114,6 +114,16 @@ const puzzleConfigs: Puzzle[] = [
     hint: 'Flow: Cloud EHR → API Cloud Link → Secure Gateway → Edge Service → Local Printer. No VPN needed!',
     acceptableAnswers: ['CLOUD_LINK', 'API_CLOUD_LINK'],
   },
+  {
+    id: 12,
+    type: 'pattern',
+    title: 'The Origin Protocol',
+    missionBrief: 'Decrypt a cellular automaton cipher using Conway\'s Game of Life.',
+    question: 'Run the pattern for 3 generations to reveal a 6-letter identifier.',
+    answer: 'VASION',
+    hint: 'Use an external Game of Life simulator. Copy the RLE pattern and run it for exactly 3 generations.',
+    acceptableAnswers: ['VASION'],
+  },
 ]
 
 export const usePuzzleStore = defineStore('puzzle', () => {

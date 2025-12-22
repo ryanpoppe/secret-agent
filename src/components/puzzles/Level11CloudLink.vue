@@ -340,7 +340,8 @@ function proceed() {
   // Report final score to game store
   gameStore.setLevelCorrectAnswers(11, score.value)
   gameStore.completeLevel(11)
-  router.push({ name: 'debrief' })
+  // Go to bonus level 12 instead of debrief
+  router.push({ name: 'level', params: { id: '12' } })
 }
 
 onMounted(() => {
