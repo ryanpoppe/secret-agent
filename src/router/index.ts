@@ -65,6 +65,12 @@ const router = createRouter({
         next()
       },
     },
+    {
+      path: '/leaderboard',
+      name: 'leaderboard',
+      component: () => import('@/views/LeaderboardView.vue'),
+      // No guard - leaderboard is publicly accessible
+    },
     // Catch-all redirect to intro
     {
       path: '/:pathMatch(.*)*',
