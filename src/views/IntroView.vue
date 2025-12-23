@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/stores/player'
 import { useGameStore } from '@/stores/game'
 import { validateEmail, validateIntroPuzzle } from '@/utils/puzzleValidators'
-import { submitLead } from '@/utils/api'
+import { submitLead, updateProgress } from '@/utils/api'
 
 const router = useRouter()
 const playerStore = usePlayerStore()
@@ -149,6 +149,7 @@ async function beginMission() {
   }
 
   isSubmitting.value = true
+  emailError.value = ''
 
   const playerData = {
     name: agentName.value.trim(),
@@ -156,11 +157,8 @@ async function beginMission() {
     company: agentCompany.value.trim(),
   }
 
-  // Register player locally
-  playerStore.registerPlayer(playerData)
-
-  // Submit lead to backend immediately
-  submitLead({
+  // Submit lead to backend - check for duplicate email
+  const leadResult = await submitLead({
     ...playerData,
     role: '',
     completedAt: new Date().toISOString(),
@@ -169,8 +167,34 @@ async function beginMission() {
     hintsUsed: 0,
     totalAttempts: 0,
     source: 'tradeshow',
+  })
+
+  if (!leadResult.success) {
+    isSubmitting.value = false
+    if (leadResult.code === 'EMAIL_EXISTS') {
+      emailError.value = 'This email has already been used. Each participant can only play once.'
+    } else {
+      emailError.value = leadResult.error || 'Failed to register. Please try again.'
+    }
+    return
+  }
+
+  // Register player locally
+  playerStore.registerPlayer(playerData)
+
+  // Create initial score record
+  updateProgress({
+    playerName: playerData.name,
+    email: playerData.email,
+    score: 0,
+    levelsCompleted: 0,
+    currentLevel: 1,
+    hintsUsed: 0,
+    totalAttempts: 0,
+    completionTime: 0,
+    isComplete: false,
   }).catch((err) => {
-    console.error('Failed to submit lead:', err)
+    console.error('Failed to create initial score:', err)
   })
 
   // Show welcome message

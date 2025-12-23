@@ -35,6 +35,29 @@ interface LeadRow {
   created_at: Date;
 }
 
+// GET /api/leads/check-email/:email - Check if email already exists
+router.get('/check-email/:email', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    
+    const result = await query<{ exists: boolean }>(
+      'SELECT EXISTS(SELECT 1 FROM leads WHERE LOWER(email) = LOWER($1)) as exists',
+      [email]
+    );
+
+    res.json({
+      success: true,
+      exists: result.rows[0].exists,
+    });
+  } catch (error) {
+    console.error('Error checking email:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check email',
+    });
+  }
+});
+
 // POST /api/leads - Submit a new lead
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -55,6 +78,21 @@ router.post('/', async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         error: 'Invalid email format',
+      });
+      return;
+    }
+
+    // Check if email already exists
+    const existingCheck = await query<{ exists: boolean }>(
+      'SELECT EXISTS(SELECT 1 FROM leads WHERE LOWER(email) = LOWER($1)) as exists',
+      [data.email]
+    );
+
+    if (existingCheck.rows[0].exists) {
+      res.status(409).json({
+        success: false,
+        error: 'This email address has already been used. Each participant can only play once.',
+        code: 'EMAIL_EXISTS',
       });
       return;
     }
@@ -90,8 +128,19 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Lead submitted successfully',
       id: result.rows[0].id,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error submitting lead:', error);
+    
+    // Handle unique constraint violation
+    if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+      res.status(409).json({
+        success: false,
+        error: 'This email address has already been used. Each participant can only play once.',
+        code: 'EMAIL_EXISTS',
+      });
+      return;
+    }
+    
     res.status(500).json({
       success: false,
       error: 'Failed to submit lead',

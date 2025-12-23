@@ -10,18 +10,21 @@ interface ApiResponse {
   success: boolean
   message?: string
   error?: string
+  code?: string
   id?: number
   rank?: number
 }
 
 interface ScoreSubmission {
   playerName: string
-  email?: string
+  email: string
   score: number
   levelsCompleted: number
+  currentLevel: number
   hintsUsed: number
   totalAttempts: number
   completionTime: number
+  isComplete?: boolean
   scoreBreakdown?: {
     levelPoints: number
     answerPoints: number
@@ -36,9 +39,37 @@ interface LeaderboardEntry {
   playerName: string
   score: number
   levelsCompleted: number
+  currentLevel: number
   hintsUsed: number
   completionTime: number
+  isComplete: boolean
   createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Check if an email address already exists in the system
+ */
+export async function checkEmailExists(email: string): Promise<{
+  success: boolean
+  exists?: boolean
+  error?: string
+}> {
+  try {
+    const response = await fetch(`${API_ENDPOINT}/check-email/${encodeURIComponent(email)}`)
+
+    if (!response.ok) {
+      throw new Error(`Email check failed: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Email check error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
 }
 
 /**
@@ -61,12 +92,14 @@ export async function submitLead(data: LeadSubmission): Promise<ApiResponse> {
       body: JSON.stringify(data),
     })
 
+    const result = await response.json()
+
     if (!response.ok) {
-      saveFailedSubmission(data)
-      throw new Error(`Lead submission failed: ${response.status}`)
+      // Return the error response (includes code for EMAIL_EXISTS)
+      return result
     }
 
-    return await response.json()
+    return result
   } catch (error) {
     console.error('Lead submission error:', error)
     saveFailedSubmission(data)
@@ -293,6 +326,34 @@ export async function getScoreRank(score: number): Promise<{
     return await response.json()
   } catch (error) {
     console.error('Rank fetch error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Update player progress after each level
+ * This creates or updates the score record for the player
+ */
+export async function updateProgress(data: ScoreSubmission): Promise<ApiResponse> {
+  try {
+    const response = await fetch(SCORES_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Progress update failed: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Progress update error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

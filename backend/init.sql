@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS leads (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     company VARCHAR(255) NOT NULL,
     role VARCHAR(255) DEFAULT '',
     phone VARCHAR(50),
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS leads (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create index on email for faster lookups
+-- Create index on email for faster lookups (unique constraint already creates one, but explicit for clarity)
 CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
 
 -- Create index on source and event for filtering
@@ -34,19 +34,22 @@ CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC);
 CREATE TABLE IF NOT EXISTS scores (
     id SERIAL PRIMARY KEY,
     player_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255),
+    email VARCHAR(255) UNIQUE NOT NULL,
     score INTEGER NOT NULL DEFAULT 0,
     levels_completed INTEGER DEFAULT 0,
+    current_level INTEGER DEFAULT 1,
     hints_used INTEGER DEFAULT 0,
     total_attempts INTEGER DEFAULT 0,
     completion_time INTEGER DEFAULT 0,
+    is_complete BOOLEAN DEFAULT FALSE,
     -- Score breakdown for analytics
-    level_points INTEGER,
-    answer_points INTEGER,
-    hint_penalty INTEGER,
-    bonus_points INTEGER,
-    level12_bonus INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    level_points INTEGER DEFAULT 0,
+    answer_points INTEGER DEFAULT 0,
+    hint_penalty INTEGER DEFAULT 0,
+    bonus_points INTEGER DEFAULT 0,
+    level12_bonus INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create index on score for leaderboard queries

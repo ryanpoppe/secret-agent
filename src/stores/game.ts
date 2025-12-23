@@ -2,6 +2,8 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { GameState } from '@/types/game'
 import { STORAGE_KEYS } from '@/types/game'
+import { updateProgress } from '@/utils/api'
+import { usePlayerStore } from './player'
 
 // Scoring constants
 const POINTS_PER_LEVEL = 10
@@ -128,18 +130,54 @@ export const useGameStore = defineStore('game', () => {
       isComplete.value = true
     }
     saveToStorage()
+    syncProgressToBackend()
+  }
+
+  /**
+   * Sync current game progress to the backend
+   */
+  function syncProgressToBackend() {
+    const playerStore = usePlayerStore()
+    
+    if (!playerStore.email) {
+      console.warn('No player email - skipping progress sync')
+      return
+    }
+
+    updateProgress({
+      playerName: playerStore.name,
+      email: playerStore.email,
+      score: totalScore.value,
+      levelsCompleted: levelsCompleted.value.length,
+      currentLevel: currentLevel.value,
+      hintsUsed: hintsUsed.value.length,
+      totalAttempts: totalAttempts.value,
+      completionTime: elapsedTime.value,
+      isComplete: isComplete.value,
+      scoreBreakdown: {
+        levelPoints: levelCompletionPoints.value,
+        answerPoints: correctAnswerPoints.value,
+        hintPenalty: hintPenaltyPoints.value,
+        bonusPoints: hiddenBonusPoints.value,
+        level12Bonus: level12BonusPoints.value,
+      },
+    }).catch((err) => {
+      console.error('Failed to sync progress:', err)
+    })
   }
 
   function useHint(levelId: number) {
     if (!hintsUsed.value.includes(levelId)) {
       hintsUsed.value.push(levelId)
       saveToStorage()
+      syncProgressToBackend()
     }
   }
 
   function addAttempt() {
     totalAttempts.value++
     saveToStorage()
+    // Don't sync on every attempt to avoid too many API calls
   }
   
   function addCorrectAnswer(levelId: number, count: number = 1) {
@@ -148,16 +186,19 @@ export const useGameStore = defineStore('game', () => {
     }
     correctAnswers.value[levelId] += count
     saveToStorage()
+    syncProgressToBackend()
   }
   
   function setLevelCorrectAnswers(levelId: number, count: number) {
     correctAnswers.value[levelId] = count
     saveToStorage()
+    syncProgressToBackend()
   }
   
   function findHiddenBonus() {
     hiddenBonusFound.value = true
     saveToStorage()
+    syncProgressToBackend()
   }
 
   function goToLevel(levelId: number) {
@@ -249,5 +290,6 @@ export const useGameStore = defineStore('game', () => {
     saveToStorage,
     loadFromStorage,
     resetGame,
+    syncProgressToBackend,
   }
 })
