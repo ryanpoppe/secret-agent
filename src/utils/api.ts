@@ -1,6 +1,7 @@
 import type { LeadSubmission } from '@/types/player'
 
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || ''
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || '/api/leads'
+const SCORES_ENDPOINT = import.meta.env.VITE_SCORES_ENDPOINT || '/api/scores'
 const API_KEY = import.meta.env.VITE_API_KEY || ''
 
 const FAILED_SUBMISSIONS_KEY = 'secret_agent_failed_submissions'
@@ -9,6 +10,35 @@ interface ApiResponse {
   success: boolean
   message?: string
   error?: string
+  id?: number
+  rank?: number
+}
+
+interface ScoreSubmission {
+  playerName: string
+  email?: string
+  score: number
+  levelsCompleted: number
+  hintsUsed: number
+  totalAttempts: number
+  completionTime: number
+  scoreBreakdown?: {
+    levelPoints: number
+    answerPoints: number
+    hintPenalty: number
+    bonusPoints: number
+    level12Bonus: number
+  }
+}
+
+interface LeaderboardEntry {
+  rank: number
+  playerName: string
+  score: number
+  levelsCompleted: number
+  hintsUsed: number
+  completionTime: number
+  createdAt: string
 }
 
 /**
@@ -182,4 +212,90 @@ export function downloadLeadsCsv(): void {
   link.download = `leads_${new Date().toISOString().split('T')[0]}.csv`
   link.click()
   URL.revokeObjectURL(link.href)
+}
+
+// ============================================
+// Score Tracking API
+// ============================================
+
+/**
+ * Submit a score to the leaderboard
+ */
+export async function submitScore(data: ScoreSubmission): Promise<ApiResponse> {
+  try {
+    const response = await fetch(SCORES_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(API_KEY && { Authorization: `Bearer ${API_KEY}` }),
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Score submission failed: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Score submission error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Get the leaderboard
+ */
+export async function getLeaderboard(limit: number = 10): Promise<{
+  success: boolean
+  data?: LeaderboardEntry[]
+  error?: string
+}> {
+  try {
+    const response = await fetch(`${SCORES_ENDPOINT}/leaderboard?limit=${limit}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch leaderboard: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Leaderboard fetch error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Get the rank for a specific score
+ */
+export async function getScoreRank(score: number): Promise<{
+  success: boolean
+  data?: {
+    rank: number
+    total: number
+    percentile: number
+  }
+  error?: string
+}> {
+  try {
+    const response = await fetch(`${SCORES_ENDPOINT}/rank/${score}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch rank: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Rank fetch error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
 }

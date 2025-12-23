@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/stores/player'
 import { useGameStore } from '@/stores/game'
 import { validateEmail, validateIntroPuzzle } from '@/utils/puzzleValidators'
+import { submitLead } from '@/utils/api'
 
 const router = useRouter()
 const playerStore = usePlayerStore()
@@ -149,11 +150,27 @@ async function beginMission() {
 
   isSubmitting.value = true
 
-  // Register player
-  playerStore.registerPlayer({
+  const playerData = {
     name: agentName.value.trim(),
     email: agentEmail.value.trim(),
     company: agentCompany.value.trim(),
+  }
+
+  // Register player locally
+  playerStore.registerPlayer(playerData)
+
+  // Submit lead to backend immediately
+  submitLead({
+    ...playerData,
+    role: '',
+    completedAt: new Date().toISOString(),
+    completionTime: 0,
+    levelsCompleted: 0,
+    hintsUsed: 0,
+    totalAttempts: 0,
+    source: 'tradeshow',
+  }).catch((err) => {
+    console.error('Failed to submit lead:', err)
   })
 
   // Show welcome message
