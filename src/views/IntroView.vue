@@ -954,7 +954,8 @@ onUnmounted(() => {
   color: var(--color-warning);
   letter-spacing: 0.15em;
   margin-bottom: var(--space-md);
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .cipher-info {
