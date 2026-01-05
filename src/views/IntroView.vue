@@ -490,7 +490,7 @@ onUnmounted(() => {
 
           <div class="cipher-box">
             <div class="cipher-label">ENCRYPTED MESSAGE:</div>
-            <div class="cipher-text">SQJOU TFSWFST BSF UIF XFBLPTU MJOL</div>
+            <div class="cipher-text">QSJOU TFSWFST BSF UIF XFBLFTU MJOL</div>
             <div class="cipher-info">
               <span class="cipher-type">CIPHER TYPE: Caesar Shift (+1)</span>
               <span class="cipher-hint">Shift each letter back by 1 position</span>
