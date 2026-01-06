@@ -336,7 +336,7 @@ function getPartLabel(part: string): string {
 
       <!-- Hint section -->
       <div class="hint-section">
-        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL</button>
+        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL (-5 points)</button>
         <div v-else class="hint-content">
           <span class="hint-label">INTEL:</span>
           <p>All OS types are compatible. For questions: Vasion is truly agnostic—supports everything, integrates with existing identity, works with legacy AND modern protocols.</p>

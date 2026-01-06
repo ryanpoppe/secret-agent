@@ -13,7 +13,7 @@ const emit = defineEmits<{
 const isRevealed = ref(false)
 
 const buttonText = computed(() => {
-  return isRevealed.value ? 'INTEL REVEALED' : 'REQUEST INTEL'
+  return isRevealed.value ? 'INTEL REVEALED' : 'REQUEST INTEL (-5 points)'
 })
 
 function revealHint() {

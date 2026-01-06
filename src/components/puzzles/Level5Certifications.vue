@@ -351,7 +351,7 @@ function proceed() {
 
         <!-- Hint section -->
         <div class="hint-section">
-          <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL</button>
+          <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL (-5 points)</button>
           <div v-else class="hint-content">
             <span class="hint-label">HINT:</span>
             <p>{{ currentDial.hint }}</p>
