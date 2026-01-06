@@ -329,6 +329,7 @@ onMounted(() => {
         <div class="step-header">
           <span class="step-number">STEP 1</span>
           <span class="step-title">PASSWORD VERIFICATION</span>
+          <img src="@/assets/1103-nokia-phone.gif" alt="Nokia phone" class="step-gif" />
           <span v-if="passwordVerified" class="step-status">✓</span>
         </div>
 
@@ -851,6 +852,12 @@ onMounted(() => {
   font-family: var(--font-display);
   font-size: 0.8rem;
   color: var(--color-text);
+}
+
+.step-gif {
+  height: 40px;
+  width: auto;
+  margin-left: var(--space-sm);
 }
 
 .step-status {
