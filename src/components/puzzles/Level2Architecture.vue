@@ -1,69 +1,31 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
-// Component definitions
-interface ArchitectureComponent {
+// Component options for dropdowns
+interface ArchOption {
   id: string
-  name: string
-  shortName: string
-  description: string
+  label: string
   icon: string
   isLegacy: boolean
-  details: string[]
 }
 
-const components: ArchitectureComponent[] = [
-  {
-    id: 'endpoint',
-    name: 'ENDPOINT',
-    shortName: 'ENDPOINT',
-    description: 'Workstation with Vasion client',
-    icon: '💻',
-    isLegacy: false,
-    details: ['Windows, Mac, Linux, Chrome', 'Vasion client installed'],
-  },
-  {
-    id: 'cloud',
-    name: 'CLOUD',
-    shortName: 'CLOUD',
-    description: 'Vasion SaaS Platform',
-    icon: '☁️',
-    isLegacy: false,
-    details: ['Printer configurations', 'Driver profiles', 'Security policies', 'TLS Port 443'],
-  },
-  {
-    id: 'printer',
-    name: 'PRINTER',
-    shortName: 'PRINTER',
-    description: 'Physical Print Device',
-    icon: '🖨️',
-    isLegacy: false,
-    details: ['Direct IP printing', 'Port 9100', 'Local network'],
-  },
-  {
-    id: 'server',
-    name: 'PRINT SERVER',
-    shortName: 'SERVER',
-    description: 'Legacy Infrastructure',
-    icon: '🖥️',
-    isLegacy: true,
-    details: ['❌ NOT NEEDED', '❌ ELIMINATE THIS'],
-  },
+const archOptions: ArchOption[] = [
+  { id: 'endpoint', label: 'Endpoint (Vasion Client)', icon: '💻', isLegacy: false },
+  { id: 'cloud', label: 'Vasion Cloud', icon: '☁️', isLegacy: false },
+  { id: 'printer', label: 'Printer', icon: '🖨️', isLegacy: false },
+  { id: 'server', label: 'Print Server', icon: '🖥️', isLegacy: true },
 ]
 
-// Correct order for the architecture
-const correctOrder = ['endpoint', 'cloud', 'printer']
-
-// State
-const availableComponents = ref<ArchitectureComponent[]>([])
-const slots = ref<(ArchitectureComponent | null)[]>([null, null, null])
+// State for dropdown selections
+const slot1Selection = ref<string | null>(null)
+const slot2Selection = ref<string | null>(null)
+const slot3Selection = ref<string | null>(null)
 const eliminatedServer = ref(false)
-const selectedComponent = ref<ArchitectureComponent | null>(null)
 const showWireCutting = ref(false)
 const showSuccess = ref(false)
 const showHint = ref(false)
@@ -71,7 +33,13 @@ const feedback = ref<{ type: 'correct' | 'incorrect' | 'eliminated'; message: st
 
 // Computed
 const isArchitectureCorrect = computed(() => {
-  return slots.value.every((slot, index) => slot?.id === correctOrder[index])
+  return slot1Selection.value === 'endpoint' && 
+         slot2Selection.value === 'cloud' && 
+         slot3Selection.value === 'printer'
+})
+
+const allSlotsSelected = computed(() => {
+  return slot1Selection.value && slot2Selection.value && slot3Selection.value
 })
 
 const isComplete = computed(() => {
@@ -79,71 +47,24 @@ const isComplete = computed(() => {
 })
 
 const filledSlots = computed(() => {
-  return slots.value.filter((s) => s !== null).length
+  let count = 0
+  if (slot1Selection.value) count++
+  if (slot2Selection.value) count++
+  if (slot3Selection.value) count++
+  return count
 })
 
+function getOptionById(id: string | null): ArchOption | null {
+  if (!id) return null
+  return archOptions.find((o) => o.id === id) || null
+}
+
 // Methods
-function selectComponent(component: ArchitectureComponent) {
-  if (showSuccess.value) return
-  selectedComponent.value = component
-}
-
-function placeInSlot(slotIndex: number) {
-  if (!selectedComponent.value || showSuccess.value) return
-
-  const component = selectedComponent.value
-
-  // Don't allow placing print server in slots
-  if (component.isLegacy) {
-    showFeedback('incorrect', 'Legacy servers cannot be part of the new architecture!')
-    return
-  }
-
-  // Check if already placed somewhere else
-  const existingSlotIndex = slots.value.findIndex((s) => s?.id === component.id)
-  if (existingSlotIndex !== -1) {
-    slots.value[existingSlotIndex] = null
-  }
-
-  // Place in new slot
-  slots.value[slotIndex] = component
-
-  // Remove from available
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== component.id)
-
-  // Add back any component that was in this slot
-  const previousComponent = slots.value[slotIndex]
-  if (previousComponent && previousComponent.id !== component.id) {
-    availableComponents.value.push(previousComponent)
-  }
-
-  selectedComponent.value = null
-
-  // Check if correct
-  if (slots.value[slotIndex]?.id === correctOrder[slotIndex]) {
-    showFeedback('correct', 'Component placed correctly!')
-  }
-
-  checkCompletion()
-}
-
 function eliminateServer() {
-  if (showSuccess.value) return
-
-  const serverComponent = selectedComponent.value
-  if (!serverComponent?.isLegacy) {
-    if (selectedComponent.value) {
-      showFeedback('incorrect', 'Only legacy infrastructure should be eliminated!')
-    }
-    return
-  }
+  if (showSuccess.value || eliminatedServer.value) return
 
   // Start wire cutting animation
   showWireCutting.value = true
-  selectedComponent.value = null
-
-  // Remove from available
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== 'server')
 
   setTimeout(() => {
     eliminatedServer.value = true
@@ -151,59 +72,6 @@ function eliminateServer() {
     showFeedback('eliminated', 'Legacy print server eliminated!')
     checkCompletion()
   }, 2500)
-}
-
-function directPlaceInSlot(component: ArchitectureComponent, slotIndex: number, event: Event) {
-  event.stopPropagation()
-
-  if (showSuccess.value) return
-
-  if (component.isLegacy) {
-    showFeedback('incorrect', 'Legacy servers cannot be part of the new architecture!')
-    return
-  }
-
-  // Remove from any existing slot
-  const existingSlotIndex = slots.value.findIndex((s) => s?.id === component.id)
-  if (existingSlotIndex !== -1) {
-    slots.value[existingSlotIndex] = null
-  }
-
-  // Place in slot
-  slots.value[slotIndex] = component
-
-  // Remove from available
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== component.id)
-
-  if (slots.value[slotIndex]?.id === correctOrder[slotIndex]) {
-    showFeedback('correct', 'Component placed correctly!')
-  }
-
-  checkCompletion()
-}
-
-function directEliminateServer(component: ArchitectureComponent, event: Event) {
-  event.stopPropagation()
-
-  if (!component.isLegacy || showSuccess.value) return
-
-  showWireCutting.value = true
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== 'server')
-
-  setTimeout(() => {
-    eliminatedServer.value = true
-    showWireCutting.value = false
-    showFeedback('eliminated', 'Legacy print server eliminated!')
-    checkCompletion()
-  }, 2500)
-}
-
-function removeFromSlot(slotIndex: number) {
-  const component = slots.value[slotIndex]
-  if (component && !showSuccess.value) {
-    slots.value[slotIndex] = null
-    availableComponents.value.push(component)
-  }
 }
 
 function checkCompletion() {
@@ -233,37 +101,17 @@ function proceed() {
   router.push({ name: 'level', params: { id: '3' } })
 }
 
-// Drag and drop handlers
-function handleDragStart(event: DragEvent, component: ArchitectureComponent) {
-  if (showSuccess.value) return
-  selectedComponent.value = component
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', component.id)
+function verifyArchitecture() {
+  if (!allSlotsSelected.value) return
+  
+  if (isArchitectureCorrect.value) {
+    showFeedback('correct', 'Architecture configured correctly!')
+  } else {
+    showFeedback('incorrect', 'Check the component order. Hint: Endpoint → Cloud → Printer')
   }
+  
+  checkCompletion()
 }
-
-function handleDragOver(event: DragEvent) {
-  event.preventDefault()
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'move'
-  }
-}
-
-function handleDropOnSlot(event: DragEvent, slotIndex: number) {
-  event.preventDefault()
-  placeInSlot(slotIndex)
-}
-
-function handleDropOnTrash(event: DragEvent) {
-  event.preventDefault()
-  eliminateServer()
-}
-
-onMounted(() => {
-  // Shuffle components
-  availableComponents.value = [...components].sort(() => Math.random() - 0.5)
-})
 </script>
 
 <template>
@@ -295,7 +143,7 @@ onMounted(() => {
 
       <!-- Hint section -->
       <div class="hint-section">
-        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL</button>
+        <button v-if="!showHint" class="hint-btn" @click="revealHint">? REQUEST INTEL (-5 points)</button>
         <div v-else class="hint-content">
           <span class="hint-label">INTEL:</span>
           <p>
@@ -369,115 +217,104 @@ onMounted(() => {
     <div class="new-architecture">
       <h3 class="section-title new-title">✓ THE NEW WAY (Build It!)</h3>
 
-      <!-- Architecture slots -->
-      <div class="architecture-builder">
-        <div
-          v-for="(slot, index) in slots"
-          :key="index"
-          class="architecture-slot"
-          :class="{
-            filled: slot !== null,
-            correct: slot?.id === correctOrder[index],
-            'drop-target': selectedComponent !== null && !selectedComponent.isLegacy,
-          }"
-          @click="placeInSlot(index)"
-          @dragover="handleDragOver"
-          @drop="handleDropOnSlot($event, index)"
-        >
-          <div v-if="slot" class="slot-content">
-            <span class="slot-icon">{{ slot.icon }}</span>
-            <span class="slot-name">{{ slot.shortName }}</span>
-            <button class="remove-btn" @click.stop="removeFromSlot(index)">×</button>
+      <div class="arch-info-box">
+        <p>Build the Vasion cloud-native print flow by selecting the correct component for each step.</p>
+        <p><strong>Remember:</strong> No print servers needed! 🚫🖥️</p>
+      </div>
+
+      <!-- Architecture flow builder with dropdowns -->
+      <div class="arch-flow-builder">
+        <div class="flow-header">
+          <span class="flow-icon">🔄</span>
+          <span class="flow-title">VASION PRINT FLOW</span>
+        </div>
+        <div class="flow-description">Select the correct component for each step in the flow</div>
+        
+        <div class="flow-slots">
+          <div class="flow-slot">
+            <label class="slot-label">Step 1: Source</label>
+            <select v-model="slot1Selection" class="slot-select" :disabled="showSuccess">
+              <option :value="null">Select...</option>
+              <option v-for="opt in archOptions.filter(o => !o.isLegacy)" :key="opt.id" :value="opt.id">
+                {{ opt.icon }} {{ opt.label }}
+              </option>
+            </select>
           </div>
-          <div v-else class="slot-placeholder">
-            <span class="slot-number">{{ index + 1 }}</span>
-            <span class="slot-hint">{{
-              selectedComponent && !selectedComponent.isLegacy ? 'TAP TO PLACE' : 'DROP HERE'
-            }}</span>
+          
+          <div class="flow-connector">→</div>
+          
+          <div class="flow-slot">
+            <label class="slot-label">Step 2: Routing</label>
+            <select v-model="slot2Selection" class="slot-select" :disabled="showSuccess">
+              <option :value="null">Select...</option>
+              <option v-for="opt in archOptions.filter(o => !o.isLegacy)" :key="opt.id" :value="opt.id">
+                {{ opt.icon }} {{ opt.label }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="flow-connector">→</div>
+          
+          <div class="flow-slot">
+            <label class="slot-label">Step 3: Destination</label>
+            <select v-model="slot3Selection" class="slot-select" :disabled="showSuccess">
+              <option :value="null">Select...</option>
+              <option v-for="opt in archOptions.filter(o => !o.isLegacy)" :key="opt.id" :value="opt.id">
+                {{ opt.icon }} {{ opt.label }}
+              </option>
+            </select>
           </div>
         </div>
 
-        <!-- Flow arrows between slots -->
-        <div class="flow-connector" style="left: calc(33.33% - 15px)">→</div>
-        <div class="flow-connector" style="left: calc(66.66% - 15px)">→</div>
+        <!-- Show selected flow preview -->
+        <div v-if="allSlotsSelected" class="flow-preview">
+          <span class="preview-item">{{ getOptionById(slot1Selection)?.icon }} {{ getOptionById(slot1Selection)?.label }}</span>
+          <span class="preview-arrow">→</span>
+          <span class="preview-item">{{ getOptionById(slot2Selection)?.icon }} {{ getOptionById(slot2Selection)?.label }}</span>
+          <span class="preview-arrow">→</span>
+          <span class="preview-item">{{ getOptionById(slot3Selection)?.icon }} {{ getOptionById(slot3Selection)?.label }}</span>
+        </div>
+
+        <!-- Hint/Result -->
+        <div v-if="allSlotsSelected" class="arch-hint">
+          <template v-if="isArchitectureCorrect">
+            <span class="hint-success">✓ CORRECT! User device → Cloud config → Direct to printer. No servers!</span>
+          </template>
+          <template v-else>
+            <span class="hint-info">💡 Hint: The flow goes: User device → Cloud for config → Direct to printer</span>
+          </template>
+        </div>
+
+        <button 
+          v-if="!isArchitectureCorrect || !allSlotsSelected" 
+          class="btn btn-secondary verify-btn" 
+          :disabled="!allSlotsSelected"
+          @click="verifyArchitecture"
+        >
+          VERIFY ARCHITECTURE
+        </button>
       </div>
 
       <!-- Elimination zone -->
-      <div
-        class="elimination-zone"
-        :class="{
-          active: selectedComponent?.isLegacy,
-          eliminated: eliminatedServer,
-        }"
-        @click="eliminateServer"
-        @dragover="handleDragOver"
-        @drop="handleDropOnTrash($event)"
-      >
-        <div v-if="eliminatedServer" class="eliminated-content">
-          <span class="eliminated-icon">✓</span>
-          <span class="eliminated-text">PRINT SERVER ELIMINATED</span>
-        </div>
-        <div v-else class="elimination-content">
-          <span class="trash-icon">🗑️</span>
-          <span class="elimination-text">
-            {{ selectedComponent?.isLegacy ? 'TAP TO ELIMINATE' : 'DRAG LEGACY SERVER HERE' }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Available components -->
-    <div class="components-section">
-      <h3 class="section-title">AVAILABLE COMPONENTS</h3>
-      <div class="components-grid">
+      <div class="elimination-section">
+        <h4 class="elimination-title">🗑️ LEGACY ELIMINATION</h4>
+        <p class="elimination-desc">The legacy print server must be eliminated from the infrastructure.</p>
+        
         <div
-          v-for="component in availableComponents"
-          :key="component.id"
-          class="component-card"
+          class="elimination-zone"
           :class="{
-            selected: selectedComponent?.id === component.id,
-            legacy: component.isLegacy,
+            eliminated: eliminatedServer,
           }"
-          draggable="true"
-          @click="selectComponent(component)"
-          @dragstart="handleDragStart($event, component)"
+          @click="eliminateServer"
         >
-          <div class="component-header">
-            <span class="component-icon-large">{{ component.icon }}</span>
-            <span class="component-name">{{ component.name }}</span>
-            <span v-if="component.isLegacy" class="legacy-badge">LEGACY</span>
+          <div v-if="eliminatedServer" class="eliminated-content">
+            <span class="eliminated-icon">✓</span>
+            <span class="eliminated-text">PRINT SERVER ELIMINATED</span>
           </div>
-          <p class="component-description">{{ component.description }}</p>
-          <ul class="component-details">
-            <li v-for="(detail, i) in component.details" :key="i">{{ detail }}</li>
-          </ul>
-
-          <!-- Action buttons -->
-          <div class="component-actions">
-            <template v-if="!component.isLegacy">
-              <button class="action-btn slot-1" @click="directPlaceInSlot(component, 0, $event)">
-                SLOT 1
-              </button>
-              <button class="action-btn slot-2" @click="directPlaceInSlot(component, 1, $event)">
-                SLOT 2
-              </button>
-              <button class="action-btn slot-3" @click="directPlaceInSlot(component, 2, $event)">
-                SLOT 3
-              </button>
-            </template>
-            <template v-else>
-              <button
-                class="action-btn eliminate"
-                @click="directEliminateServer(component, $event)"
-              >
-                🗑️ ELIMINATE
-              </button>
-            </template>
+          <div v-else class="elimination-content">
+            <span class="trash-icon">🖥️</span>
+            <span class="elimination-text">TAP TO ELIMINATE PRINT SERVER</span>
           </div>
-        </div>
-
-        <div v-if="availableComponents.length === 0" class="empty-components">
-          All components placed!
         </div>
       </div>
     </div>
@@ -802,109 +639,112 @@ onMounted(() => {
   margin-bottom: var(--space-xl);
 }
 
-.architecture-builder {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-lg);
-  position: relative;
-  padding: var(--space-lg) 0;
-  flex-wrap: wrap;
+/* Architecture info box */
+.arch-info-box {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
-.architecture-slot {
-  width: 120px;
-  height: 120px;
-  border: 2px dashed var(--color-border);
+.arch-info-box p {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.arch-info-box p:last-child {
+  margin-bottom: 0;
+}
+
+/* Architecture flow builder */
+.arch-flow-builder {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.flow-header {
   display: flex;
   align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.flow-icon {
+  font-size: 1.25rem;
+}
+
+.flow-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+}
+
+.flow-description {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  margin-bottom: var(--space-lg);
+}
+
+.flow-slots {
+  display: flex;
+  align-items: flex-end;
   justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.flow-slot {
+  flex: 1;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.slot-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-xs);
+  text-align: center;
+}
+
+.slot-select {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all var(--transition-fast);
-  background: var(--color-surface-elevated);
 }
 
-.architecture-slot.drop-target {
+.slot-select:focus {
   border-color: var(--color-primary);
-  background: var(--color-primary-glow);
+  outline: none;
 }
 
-.architecture-slot.filled {
-  border-style: solid;
-  border-color: var(--color-secondary);
+.slot-select:hover:not(:disabled) {
+  border-color: var(--color-text-dim);
 }
 
-.architecture-slot.correct {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 10px var(--color-primary-dim);
-}
-
-.slot-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  position: relative;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-}
-
-.slot-icon {
-  font-size: 2rem;
-}
-
-.slot-name {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  color: var(--color-primary);
-  letter-spacing: 0.1em;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: var(--color-accent);
-  color: white;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slot-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.slot-number {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--color-text-muted);
-}
-
-.slot-hint {
-  font-size: 0.6rem;
-  color: var(--color-text-muted);
-  letter-spacing: 0.1em;
+.slot-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .flow-connector {
-  position: absolute;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: var(--color-primary);
-  top: 50%;
-  transform: translateY(-50%);
+  padding-bottom: var(--space-sm);
 }
 
 @media (max-width: 600px) {
@@ -912,9 +752,84 @@ onMounted(() => {
     display: none;
   }
 
-  .architecture-builder {
+  .flow-slots {
     flex-direction: column;
+    align-items: center;
   }
+
+  .flow-slot {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Flow preview */
+.flow-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-md);
+}
+
+.preview-item {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-primary-glow);
+  border-radius: var(--radius-sm);
+}
+
+.preview-arrow {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Architecture hint */
+.arch-hint {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.hint-success {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.hint-info {
+  color: var(--color-warning);
+}
+
+.verify-btn {
+  width: 100%;
+}
+
+/* Elimination section */
+.elimination-section {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.elimination-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+.elimination-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  margin-bottom: var(--space-md);
 }
 
 /* Elimination zone */
@@ -971,137 +886,6 @@ onMounted(() => {
   letter-spacing: 0.1em;
 }
 
-/* Components section */
-.components-section {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  margin-bottom: var(--space-xl);
-}
-
-.components-grid {
-  display: grid;
-  gap: var(--space-md);
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-.component-card {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-md);
-  cursor: grab;
-  transition: all var(--transition-fast);
-}
-
-.component-card:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.component-card.selected {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-dim);
-}
-
-.component-card.legacy {
-  border-color: var(--color-accent);
-  background: rgba(255, 0, 102, 0.05);
-}
-
-.component-card.legacy:hover {
-  border-color: var(--color-accent);
-}
-
-.component-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
-}
-
-.component-icon-large {
-  font-size: 1.5rem;
-}
-
-.component-name {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--color-text);
-  letter-spacing: 0.1em;
-}
-
-.legacy-badge {
-  font-size: 0.55rem;
-  color: var(--color-accent);
-  background: rgba(255, 0, 102, 0.2);
-  padding: 2px 6px;
-  border-radius: 2px;
-  margin-left: auto;
-}
-
-.component-description {
-  font-size: 0.8rem;
-  color: var(--color-text-dim);
-  margin-bottom: var(--space-sm);
-}
-
-.component-details {
-  list-style: none;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-}
-
-.component-details li {
-  margin-bottom: 2px;
-}
-
-/* Component action buttons */
-.component-actions {
-  display: flex;
-  gap: var(--space-xs);
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.action-btn {
-  flex: 1;
-  padding: var(--space-sm);
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-primary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  min-height: 36px;
-}
-
-.action-btn:hover {
-  background: var(--color-primary-dim);
-}
-
-.action-btn.eliminate {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-}
-
-.action-btn.eliminate:hover {
-  background: rgba(255, 0, 102, 0.2);
-}
-
-.empty-components {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: var(--space-xl);
-  color: var(--color-text-muted);
-  font-style: italic;
-}
 
 /* Progress indicator */
 .progress-indicator {
