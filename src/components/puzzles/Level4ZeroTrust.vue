@@ -17,65 +17,35 @@ const showMorseChart = ref(true)
 const isPlaying = ref(false)
 const morseAudio = ref<HTMLAudioElement | null>(null)
 
-// Part C: Architecture state
-interface ArchComponent {
+// Part B: Architecture state (click-to-order like Level 11)
+interface ArchStep {
   id: string
-  letter: string
-  name: string
+  label: string
   description: string
-  details: string[]
   icon: string
+  order: number | null
 }
 
-const components: ArchComponent[] = [
-  {
-    id: 'remote',
-    letter: 'A',
-    name: 'REMOTE USER',
-    description: 'Working from home',
-    details: ['Outside corporate network', 'Sends print job'],
-    icon: '🏠',
-  },
-  {
-    id: 'tls',
-    letter: 'B',
-    name: 'TLS HANDSHAKE',
-    description: 'Port 443 Encryption',
-    details: ['Secure HTTPS connection', 'Certificate verification'],
-    icon: '🔒',
-  },
-  {
-    id: 'gateway',
-    letter: 'C',
-    name: 'SECURE GATEWAY',
-    description: 'Cloud Infrastructure',
-    details: ['Authenticates and authorizes', 'Stores encrypted job'],
-    icon: '☁️',
-  },
-  {
-    id: 'edge',
-    letter: 'D',
-    name: 'EDGE SERVICE',
-    description: 'On-premise or Embedded',
-    details: ['Pulls job from gateway', 'Routes to local printer'],
-    icon: '🔗',
-  },
-  {
-    id: 'printer',
-    letter: 'E',
-    name: 'PRINTER',
-    description: 'Office Device',
-    details: ['Receives via port 9100', 'Prints document'],
-    icon: '🖨️',
-  },
-]
+const archSteps = ref<ArchStep[]>([
+  { id: 'remote', label: 'REMOTE USER', description: 'Working from home, outside corporate network', icon: '🏠', order: null },
+  { id: 'tls', label: 'TLS HANDSHAKE', description: 'Port 443, secure HTTPS encryption', icon: '🔒', order: null },
+  { id: 'gateway', label: 'SECURE GATEWAY', description: 'Cloud infrastructure, stores encrypted job', icon: '☁️', order: null },
+  { id: 'edge', label: 'EDGE SERVICE', description: 'On-premise or embedded, pulls from gateway', icon: '🔗', order: null },
+  { id: 'printer', label: 'PRINTER', description: 'Office device, receives via port 9100', icon: '🖨️', order: null },
+])
 
 const correctOrder = ['remote', 'tls', 'gateway', 'edge', 'printer']
-
-const availableComponents = ref<ArchComponent[]>([])
-const placedComponents = ref<(ArchComponent | null)[]>([null, null, null, null, null])
-const selectedComponent = ref<ArchComponent | null>(null)
+const currentOrderStep = ref(1)
+const archVerified = ref(false)
 const architectureComplete = ref(false)
+
+const archCorrect = computed(() => {
+  const userOrder = archSteps.value
+    .filter((s) => s.order !== null)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((s) => s.id)
+  return JSON.stringify(userOrder) === JSON.stringify(correctOrder)
+})
 
 // Animation state
 const showSecurityAnimation = ref(false)
@@ -85,12 +55,8 @@ const showHint = ref(false)
 const feedback = ref<{ type: 'correct' | 'incorrect' | 'bonus'; message: string } | null>(null)
 
 // Computed
-const isArchitectureCorrect = computed(() => {
-  return placedComponents.value.every((comp, index) => comp?.id === correctOrder[index])
-})
-
-const allPlaced = computed(() => {
-  return placedComponents.value.every((comp) => comp !== null)
+const allStepsSelected = computed(() => {
+  return archSteps.value.every((s) => s.order !== null)
 })
 
 // Morse code reference for display
@@ -228,66 +194,42 @@ function verifyMfaCode() {
   }
 }
 
-function selectComponent(comp: ArchComponent) {
-  if (architectureComplete.value) return
-  selectedComponent.value = comp
-}
-
-function placeInSlot(index: number) {
-  if (!selectedComponent.value || architectureComplete.value) return
-
-  const comp = selectedComponent.value
-
-  // Remove from any existing slot
-  const existingIndex = placedComponents.value.findIndex((c) => c?.id === comp.id)
-  if (existingIndex !== -1) {
-    placedComponents.value[existingIndex] = null
-  }
-
-  // Place in new slot
-  placedComponents.value[index] = comp
-
-  // Remove from available
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== comp.id)
-
-  selectedComponent.value = null
-
-  checkArchitecture()
-}
-
-function directPlaceInSlot(comp: ArchComponent, index: number, event: Event) {
-  event.stopPropagation()
-  if (architectureComplete.value) return
-
-  // Remove from any existing slot
-  const existingIndex = placedComponents.value.findIndex((c) => c?.id === comp.id)
-  if (existingIndex !== -1) {
-    placedComponents.value[existingIndex] = null
-  }
-
-  // Place in slot
-  placedComponents.value[index] = comp
-
-  // Remove from available
-  availableComponents.value = availableComponents.value.filter((c) => c.id !== comp.id)
-
-  checkArchitecture()
-}
-
-function removeFromSlot(index: number) {
-  const comp = placedComponents.value[index]
-  if (comp && !architectureComplete.value) {
-    placedComponents.value[index] = null
-    availableComponents.value.push(comp)
+// Part B: Architecture methods (click-to-order like Level 11)
+function selectStep(step: ArchStep) {
+  if (archVerified.value) return
+  if (step.order !== null) {
+    // Remove this step and reorder others
+    const removedOrder = step.order
+    step.order = null
+    archSteps.value.forEach((s) => {
+      if (s.order !== null && s.order > removedOrder) {
+        s.order--
+      }
+    })
+    currentOrderStep.value--
+  } else if (currentOrderStep.value <= 5) {
+    step.order = currentOrderStep.value
+    currentOrderStep.value++
+    playBonusSound()
   }
 }
 
-function checkArchitecture() {
-  if (allPlaced.value && isArchitectureCorrect.value) {
+function verifyArchitecture() {
+  archVerified.value = true
+  if (archCorrect.value) {
     architectureComplete.value = true
     showFeedback('correct', 'SECURE ARCHITECTURE DEPLOYED')
     startSecurityAnimation()
+  } else {
+    showFeedback('incorrect', 'Incorrect sequence (-5 points). Review the correct flow.')
   }
+}
+
+function proceedAfterIncorrect() {
+  // Deduct 5 points for incorrect answer
+  gameStore.deductPoints(5)
+  architectureComplete.value = true
+  startSecurityAnimation()
 }
 
 function startSecurityAnimation() {
@@ -331,8 +273,8 @@ function proceed() {
 }
 
 onMounted(() => {
-  // Shuffle components
-  availableComponents.value = [...components].sort(() => Math.random() - 0.5)
+  // Shuffle arch steps for initial display
+  archSteps.value = archSteps.value.sort(() => Math.random() - 0.5)
 })
 </script>
 
@@ -522,66 +464,63 @@ onMounted(() => {
         <div class="scenario-box">
           <div class="scenario-header">SCENARIO</div>
           <p>Dr. Sarah Chen is a physician working from home. She needs to print patient records to her office printer <strong>securely</strong>.</p>
-          <p class="scenario-task"><strong>Build the zero-trust print flow</strong> by placing components in the correct sequence:</p>
+          <p class="scenario-task"><strong>Build the zero-trust print flow</strong> by clicking components in order (1-5):</p>
         </div>
 
-        <!-- Architecture slots -->
-        <div class="architecture-builder">
-          <div class="slots-container">
-            <div v-for="(slot, index) in placedComponents" :key="index" class="arch-slot" :class="{ filled: slot !== null, 'drop-target': selectedComponent !== null }" @click="placeInSlot(index)">
-              <div class="slot-number">STEP {{ index + 1 }}</div>
+        <!-- Architecture components (click-to-order like Level 11) -->
+        <div class="arch-components">
+          <div
+            v-for="step in archSteps"
+            :key="step.id"
+            class="arch-component"
+            :class="{ 
+              selected: step.order !== null, 
+              verified: archVerified, 
+              correct: archVerified && correctOrder.indexOf(step.id) + 1 === step.order, 
+              incorrect: archVerified && step.order !== null && correctOrder.indexOf(step.id) + 1 !== step.order 
+            }"
+            @click="selectStep(step)"
+          >
+            <div class="comp-order" v-if="step.order">{{ step.order }}</div>
+            <div class="comp-icon">{{ step.icon }}</div>
+            <div class="comp-label">{{ step.label }}</div>
+            <div class="comp-desc">{{ step.description }}</div>
+          </div>
+        </div>
 
-              <div v-if="slot" class="slot-content">
-                <span class="slot-icon">{{ slot.icon }}</span>
-                <span class="slot-name">{{ slot.name }}</span>
-                <button v-if="!architectureComplete" class="slot-remove" @click.stop="removeFromSlot(index)">×</button>
-              </div>
-
-              <div v-else class="slot-empty">
-                <span v-if="selectedComponent" class="slot-hint">TAP TO PLACE</span>
-                <span v-else class="slot-hint">DROP HERE</span>
-              </div>
-
-              <!-- Arrow to next -->
-              <div v-if="index < 4" class="slot-arrow">↓</div>
+        <!-- Result after incorrect verification -->
+        <div v-if="archVerified && !archCorrect" class="arch-result">
+          <div class="result-header">
+            ✗ INCORRECT SEQUENCE (-5 points)
+          </div>
+          <div class="correct-sequence">
+            <p><strong>Correct flow:</strong></p>
+            <div class="sequence-flow">
+              <span class="seq-item">🏠 Remote User</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-item">🔒 TLS Handshake</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-item">☁️ Secure Gateway</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-item">🔗 Edge Service</span>
+              <span class="seq-arrow">→</span>
+              <span class="seq-item">🖨️ Printer</span>
             </div>
           </div>
+          <button class="btn btn-primary" @click="proceedAfterIncorrect">
+            PROCEED →
+          </button>
         </div>
 
-        <!-- Available components -->
-        <div v-if="!architectureComplete" class="components-pool">
-          <div class="pool-title">AVAILABLE COMPONENTS</div>
-          <div class="pool-grid">
-            <div
-              v-for="comp in availableComponents"
-              :key="comp.id"
-              class="pool-component"
-              :class="{ selected: selectedComponent?.id === comp.id }"
-              @click="selectComponent(comp)"
-            >
-              <div class="comp-header">
-                <span class="comp-icon">{{ comp.icon }}</span>
-                <span class="comp-letter">{{ comp.letter }})</span>
-                <span class="comp-name">{{ comp.name }}</span>
-              </div>
-              <p class="comp-desc">{{ comp.description }}</p>
-              <ul class="comp-details">
-                <li v-for="(detail, i) in comp.details" :key="i">{{ detail }}</li>
-              </ul>
-              <div class="comp-actions">
-                <button v-for="i in 5" :key="i" class="slot-btn" @click="directPlaceInSlot(comp, i - 1, $event)">STEP {{ i }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Architecture complete badge -->
-        <Transition name="expand">
-          <div v-if="architectureComplete" class="arch-complete">
-            <span class="arch-complete-icon">✓</span>
-            <span class="arch-complete-text">SECURE ARCHITECTURE DEPLOYED</span>
-          </div>
-        </Transition>
+        <!-- Verify button -->
+        <button 
+          v-if="!archVerified" 
+          class="btn btn-primary" 
+          :disabled="!allStepsSelected" 
+          @click="verifyArchitecture"
+        >
+          VERIFY SEQUENCE →
+        </button>
       </template>
 
       <div v-else class="locked-message">Complete authentication to unlock</div>
@@ -1320,210 +1259,129 @@ onMounted(() => {
   color: var(--color-primary) !important;
 }
 
-/* Architecture builder */
-.architecture-builder {
+/* Architecture components (click-to-order like Level 11) */
+.arch-components {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
 
-.slots-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.arch-slot {
-  width: 100%;
-  max-width: 300px;
+.arch-component {
   background: var(--color-surface-elevated);
-  border: 2px dashed var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
   text-align: center;
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
 }
 
-.arch-slot.filled {
-  border-style: solid;
+.arch-component:hover:not(.verified) {
   border-color: var(--color-primary);
 }
 
-.arch-slot.drop-target:not(.filled) {
+.arch-component.selected {
   border-color: var(--color-primary);
   background: var(--color-primary-glow);
 }
 
-.slot-number {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-xs);
+.arch-component.verified.correct {
+  border-color: var(--color-primary);
+  background: rgba(0, 255, 136, 0.2);
 }
 
-.slot-content {
+.arch-component.verified.incorrect {
+  border-color: var(--color-accent);
+  background: rgba(255, 0, 102, 0.2);
+}
+
+.comp-order {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
-  position: relative;
-}
-
-.slot-icon {
-  font-size: 1.5rem;
-}
-
-.slot-name {
   font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--color-primary);
-}
-
-.slot-remove {
-  position: absolute;
-  right: -8px;
-  top: -8px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: var(--color-accent);
-  color: white;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
-}
-
-.slot-empty {
-  padding: var(--space-md);
-}
-
-.slot-hint {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-}
-
-.slot-arrow {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  margin: var(--space-xs) 0;
-}
-
-/* Components pool */
-.components-pool {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.pool-title {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--color-text-dim);
-  margin-bottom: var(--space-md);
-}
-
-.pool-grid {
-  display: grid;
-  gap: var(--space-md);
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
-
-.pool-component {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.pool-component:hover {
-  border-color: var(--color-primary);
-}
-
-.pool-component.selected {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-dim);
-}
-
-.comp-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--color-background);
 }
 
 .comp-icon {
-  font-size: 1.25rem;
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
 }
 
-.comp-letter {
+.comp-label {
   font-family: var(--font-display);
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-}
-
-.comp-name {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.comp-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+}
+
+/* Architecture result */
+.arch-result {
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.result-header {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-accent);
+  margin-bottom: var(--space-md);
+}
+
+.result-header.correct {
+  color: var(--color-primary);
+}
+
+.correct-sequence {
+  margin-bottom: var(--space-lg);
+}
+
+.correct-sequence p {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.sequence-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.seq-item {
+  font-size: 0.8rem;
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+
+.seq-arrow {
+  color: var(--color-primary);
 }
 
 .comp-desc {
   font-size: 0.75rem;
   color: var(--color-text-dim);
   margin-bottom: var(--space-sm);
-}
-
-.comp-details {
-  list-style: none;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-sm);
-}
-
-.comp-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.slot-btn {
-  flex: 1;
-  min-width: 50px;
-  padding: 4px;
-  font-size: 0.6rem;
-  background: transparent;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.slot-btn:hover {
-  background: var(--color-primary-dim);
-}
-
-.arch-complete {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  background: var(--color-primary-glow);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-}
-
-.arch-complete-icon {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-}
-
-.arch-complete-text {
-  font-family: var(--font-display);
-  color: var(--color-primary);
 }
 
 .locked-message {
@@ -1922,7 +1780,7 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .comparison-section {
     grid-template-columns: 1fr;
   }
@@ -1931,6 +1789,7 @@ onMounted(() => {
     width: 40px;
     height: 50px;
     font-size: 1.25rem;
+    line-height: 46px;
     padding: 0px;
   }
 
@@ -1940,6 +1799,20 @@ onMounted(() => {
 
   .diagram-arrow {
     transform: rotate(90deg);
+  }
+
+  .arch-components {
+    grid-template-columns: 1fr;
+  }
+
+  .sequence-flow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .seq-arrow {
+    transform: rotate(90deg);
+    padding: var(--space-xs) 0;
   }
 }
 </style>

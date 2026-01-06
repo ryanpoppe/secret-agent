@@ -10,6 +10,7 @@ const POINTS_PER_LEVEL = 10
 const POINTS_PER_CORRECT_ANSWER = 1
 const POINTS_HINT_PENALTY = -5
 const POINTS_HIDDEN_BONUS = 10
+const POINTS_WRONG_ANSWER_PENALTY = -5
 
 export const useGameStore = defineStore('game', () => {
   // State
@@ -24,6 +25,7 @@ export const useGameStore = defineStore('game', () => {
   // Scoring state
   const correctAnswers = ref<Record<number, number>>({}) // levelId -> count of correct answers
   const hiddenBonusFound = ref(false)
+  const wrongAnswerPenalties = ref(0) // Count of wrong answer penalties applied
 
   // Getters
   const completionPercentage = computed(() => {
@@ -68,8 +70,12 @@ export const useGameStore = defineStore('game', () => {
     return hiddenBonusFound.value ? POINTS_HIDDEN_BONUS : 0
   })
   
+  const wrongAnswerPenaltyPoints = computed(() => {
+    return wrongAnswerPenalties.value * POINTS_WRONG_ANSWER_PENALTY
+  })
+  
   const totalScore = computed(() => {
-    return Math.max(0, levelCompletionPoints.value + correctAnswerPoints.value + hintPenaltyPoints.value + hiddenBonusPoints.value + level12BonusPoints.value)
+    return Math.max(0, levelCompletionPoints.value + correctAnswerPoints.value + hintPenaltyPoints.value + hiddenBonusPoints.value + level12BonusPoints.value + wrongAnswerPenaltyPoints.value)
   })
   
   const totalCorrectAnswers = computed(() => {
@@ -86,6 +92,8 @@ export const useGameStore = defineStore('game', () => {
     answerPoints: correctAnswerPoints.value,
     hintsUsed: hintsUsed.value.length,
     hintPenalty: hintPenaltyPoints.value,
+    wrongAnswers: wrongAnswerPenalties.value,
+    wrongAnswerPenalty: wrongAnswerPenaltyPoints.value,
     hiddenBonus: hiddenBonusFound.value,
     bonusPoints: hiddenBonusPoints.value,
     level12Completed: levelsCompleted.value.includes(12),
@@ -200,6 +208,14 @@ export const useGameStore = defineStore('game', () => {
     saveToStorage()
     syncProgressToBackend()
   }
+  
+  function deductPoints(points: number = 5) {
+    // Each call to deductPoints adds one wrong answer penalty
+    // The points parameter is ignored - we use a fixed penalty per wrong answer
+    wrongAnswerPenalties.value++
+    saveToStorage()
+    syncProgressToBackend()
+  }
 
   function goToLevel(levelId: number) {
     currentLevel.value = levelId
@@ -217,6 +233,7 @@ export const useGameStore = defineStore('game', () => {
       totalAttempts: totalAttempts.value,
       correctAnswers: correctAnswers.value,
       hiddenBonusFound: hiddenBonusFound.value,
+      wrongAnswerPenalties: wrongAnswerPenalties.value,
     }
     localStorage.setItem(STORAGE_KEYS.GAME, JSON.stringify(data))
   }
@@ -235,6 +252,7 @@ export const useGameStore = defineStore('game', () => {
         totalAttempts.value = data.totalAttempts || 0
         correctAnswers.value = data.correctAnswers || {}
         hiddenBonusFound.value = data.hiddenBonusFound || false
+        wrongAnswerPenalties.value = data.wrongAnswerPenalties || 0
       } catch (e) {
         console.error('Failed to parse game data from storage:', e)
       }
@@ -251,6 +269,7 @@ export const useGameStore = defineStore('game', () => {
     totalAttempts.value = 0
     correctAnswers.value = {}
     hiddenBonusFound.value = false
+    wrongAnswerPenalties.value = 0
     localStorage.removeItem(STORAGE_KEYS.GAME)
   }
 
@@ -265,6 +284,7 @@ export const useGameStore = defineStore('game', () => {
     totalAttempts,
     correctAnswers,
     hiddenBonusFound,
+    wrongAnswerPenalties,
     // Getters
     completionPercentage,
     elapsedTime,
@@ -276,6 +296,7 @@ export const useGameStore = defineStore('game', () => {
     correctAnswerPoints,
     hintPenaltyPoints,
     hiddenBonusPoints,
+    wrongAnswerPenaltyPoints,
     level12BonusPoints,
     totalCorrectAnswers,
     // Actions
@@ -286,6 +307,7 @@ export const useGameStore = defineStore('game', () => {
     addCorrectAnswer,
     setLevelCorrectAnswers,
     findHiddenBonus,
+    deductPoints,
     goToLevel,
     saveToStorage,
     loadFromStorage,
