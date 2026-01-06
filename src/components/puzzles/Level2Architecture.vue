@@ -16,7 +16,7 @@ interface ArchOption {
 
 const archOptions: ArchOption[] = [
   { id: 'endpoint', label: 'Endpoint (Vasion Client)', icon: '💻', isLegacy: false },
-  { id: 'cloud', label: 'Vasion Cloud', icon: '☁️', isLegacy: false },
+  { id: 'cloud', label: 'Direct IP', icon: '➡️', isLegacy: false },
   { id: 'printer', label: 'Printer', icon: '🖨️', isLegacy: false },
   { id: 'server', label: 'Print Server', icon: '🖥️', isLegacy: true },
 ]
@@ -270,18 +270,16 @@ function verifyArchitecture() {
         <div v-if="allSlotsSelected" class="flow-preview">
           <span class="preview-item">{{ getOptionById(slot1Selection)?.icon }} {{ getOptionById(slot1Selection)?.label }}</span>
           <span class="preview-arrow">→</span>
-          <span class="preview-item">{{ getOptionById(slot2Selection)?.icon }} {{ getOptionById(slot2Selection)?.label }}</span>
-          <span class="preview-arrow">→</span>
           <span class="preview-item">{{ getOptionById(slot3Selection)?.icon }} {{ getOptionById(slot3Selection)?.label }}</span>
         </div>
 
         <!-- Hint/Result -->
         <div v-if="allSlotsSelected" class="arch-hint">
           <template v-if="isArchitectureCorrect">
-            <span class="hint-success">✓ CORRECT! User device → Cloud config → Direct to printer. No servers!</span>
+            <span class="hint-success">✓ CORRECT! User device → Direct to printer. No servers!</span>
           </template>
           <template v-else>
-            <span class="hint-info">💡 Hint: The flow goes: User device → Cloud for config → Direct to printer</span>
+            <span class="hint-info">💡 Hint: The flow goes: User device → Direct IP → To printer</span>
           </template>
         </div>
 
@@ -357,15 +355,6 @@ function verifyArchitecture() {
                   <span class="step-icon">💻</span>
                   <span class="step-name">ENDPOINT</span>
                   <span class="step-detail">Vasion client</span>
-                </div>
-                <div class="result-arrow">
-                  <span class="arrow-icon">→</span>
-                  <span class="arrow-label">TLS 443</span>
-                </div>
-                <div class="result-step">
-                  <span class="step-icon">☁️</span>
-                  <span class="step-name">CLOUD</span>
-                  <span class="step-detail">Config & policies</span>
                 </div>
                 <div class="result-arrow">
                   <span class="arrow-icon">→</span>
