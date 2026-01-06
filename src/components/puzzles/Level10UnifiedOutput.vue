@@ -318,7 +318,7 @@ function proceed() {
       <div v-if="currentStep === 1" class="config-step">
         <div class="console-header">VASION ADMIN CONSOLE - ROUTING CONFIGURATION</div>
 
-        <p class="console-desc">Configure how print jobs are routed from EHR/ERP systems to printers.</p>
+        <p class="console-desc">Print jobs are routed from EHR/ERP systems to printers.</p>
 
         <div class="routing-rules">
           <div v-for="rule in routingRules" :key="rule.id" class="rule-card">
@@ -327,14 +327,14 @@ function proceed() {
               <div class="rule-line">IF document_type = "{{ rule.condition }}"</div>
               <div class="rule-line">THEN route_to = "{{ rule.target }}"</div>
             </div>
-            <div class="rule-actions">
+            <!-- <div class="rule-actions">
               <button class="rule-btn">EDIT</button>
               <button class="rule-btn">DELETE</button>
-            </div>
+            </div> -->
           </div>
         </div>
 
-        <button class="btn btn-secondary add-rule-btn">+ ADD NEW RULE</button>
+        <!-- <button class="btn btn-secondary add-rule-btn">+ ADD NEW RULE</button> -->
 
         <div class="step-status">✓ Routing logic configured</div>
 
