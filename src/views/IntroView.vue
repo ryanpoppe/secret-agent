@@ -509,7 +509,7 @@ onUnmounted(() => {
           <div class="answer-section">
             <label class="form-label" for="decryptedAnswer">ENTER DECRYPTED MESSAGE:</label>
             <div class="answer-template">
-              P _ _ _ _ S _ _ _ _ _ _ A _ _ T _ _ W _ _ _ _ _ _ L _ _ _
+              P____ S______ A__ T__ W______ L___
             </div>
             <input
               id="decryptedAnswer"
@@ -1008,7 +1008,7 @@ onUnmounted(() => {
   font-family: var(--font-display);
   font-size: clamp(0.75rem, 3vw, 1rem);
   color: var(--color-text-dim);
-  letter-spacing: 0.1em;
+  letter-spacing: 1em;
   margin-bottom: var(--space-md);
   word-break: break-all;
 }
