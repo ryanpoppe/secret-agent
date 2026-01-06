@@ -1230,6 +1230,7 @@ onMounted(() => {
   text-align: center;
   font-family: var(--font-display);
   font-size: 1.5rem;
+  padding: 0;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -1930,6 +1931,7 @@ onMounted(() => {
     width: 40px;
     height: 50px;
     font-size: 1.25rem;
+    padding: 0px;
   }
 
   .diagram-flow {
