@@ -123,29 +123,41 @@ const questions = ref<QuizQuestion[]>([
 
 const currentQuestionIndex = ref(0)
 
-// Workflow sequence state
+// Workflow sequence state (click-to-order like Level 11)
 interface WorkflowStep {
   id: string
-  letter: string
-  text: string
+  label: string
   description: string
+  icon: string
+  order: number | null
 }
 
-const workflowSteps: WorkflowStep[] = [
-  { id: 'a', letter: 'A', text: 'Guest accesses Web Print portal', description: 'in web browser' },
-  { id: 'b', letter: 'B', text: 'Guest authenticates', description: '(IdP or email as guest)' },
-  { id: 'c', letter: 'C', text: 'Guest uploads document', description: '(PDF, Word, etc.)' },
-  { id: 'd', letter: 'D', text: 'Guest selects Pull Printer', description: 'for secure hold' },
-  { id: 'e', letter: 'E', text: 'Guest receives email', description: 'with release code and instructions' },
-  { id: 'f', letter: 'F', text: 'Guest goes to MFD', description: 'and enters release code on CPA' },
-  { id: 'g', letter: 'G', text: 'Document releases and prints', description: 'securely at MFD' },
-]
+const workflowSteps = ref<WorkflowStep[]>([
+  { id: 'a', label: 'Access Web Print Portal', description: 'Guest opens browser to print URL', icon: '🌐', order: null },
+  { id: 'b', label: 'Authenticate', description: 'IdP login or continue as guest with email', icon: '🔐', order: null },
+  { id: 'c', label: 'Upload Document', description: 'PDF, Word, or other supported format', icon: '📤', order: null },
+  { id: 'd', label: 'Select Pull Printer', description: 'Choose printer for secure hold', icon: '🖨️', order: null },
+  { id: 'e', label: 'Receive Email', description: 'Get release code and instructions', icon: '📧', order: null },
+  { id: 'f', label: 'Go to MFD', description: 'Enter release code on Control Panel App', icon: '🚶', order: null },
+  { id: 'g', label: 'Document Prints', description: 'Secure release at MFD', icon: '✅', order: null },
+])
 
 const correctWorkflowOrder = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-const availableSteps = ref<WorkflowStep[]>([])
-const placedSteps = ref<(WorkflowStep | null)[]>([null, null, null, null, null, null, null])
+const currentOrderStep = ref(1)
+const workflowVerified = ref(false)
 const workflowComplete = ref(false)
-const workflowCorrect = ref(false)
+
+const workflowCorrect = computed(() => {
+  const userOrder = workflowSteps.value
+    .filter((s) => s.order !== null)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((s) => s.id)
+  return JSON.stringify(userOrder) === JSON.stringify(correctWorkflowOrder)
+})
+
+const allWorkflowStepsSelected = computed(() => {
+  return workflowSteps.value.every((s) => s.order !== null)
+})
 
 // Interactive simulation state
 type SimPhase = 'portal' | 'email' | 'generate' | 'enter-code' | 'release' | 'complete'
@@ -206,45 +218,50 @@ function nextQuestion() {
   }
 }
 
-// Workflow methods
+// Workflow methods (click-to-order like Level 11)
 function initWorkflow() {
-  availableSteps.value = [...workflowSteps].sort(() => Math.random() - 0.5)
-  placedSteps.value = [null, null, null, null, null, null, null]
+  // Shuffle workflow steps for display
+  workflowSteps.value = workflowSteps.value.sort(() => Math.random() - 0.5)
+  currentOrderStep.value = 1
+  workflowVerified.value = false
 }
 
-function placeStep(step: WorkflowStep, slotIndex: number) {
-  // Remove from any existing slot
-  const existingIndex = placedSteps.value.findIndex((s) => s?.id === step.id)
-  if (existingIndex !== -1) {
-    placedSteps.value[existingIndex] = null
+function selectWorkflowStep(step: WorkflowStep) {
+  if (workflowVerified.value) return
+  if (step.order !== null) {
+    // Remove this step and reorder others
+    const removedOrder = step.order
+    step.order = null
+    workflowSteps.value.forEach((s) => {
+      if (s.order !== null && s.order > removedOrder) {
+        s.order--
+      }
+    })
+    currentOrderStep.value--
+  } else if (currentOrderStep.value <= 7) {
+    step.order = currentOrderStep.value
+    currentOrderStep.value++
+    playSound('bling1.mp3')
   }
-
-  // Place in new slot
-  placedSteps.value[slotIndex] = step
-
-  // Remove from available
-  availableSteps.value = availableSteps.value.filter((s) => s.id !== step.id)
 }
 
-function removeFromSlot(slotIndex: number) {
-  const step = placedSteps.value[slotIndex]
-  if (step) {
-    placedSteps.value[slotIndex] = null
-    availableSteps.value.push(step)
-  }
-}
-
-function checkWorkflow() {
-  const allPlaced = placedSteps.value.every((s) => s !== null)
-  if (!allPlaced) return
-
+function verifyWorkflow() {
+  workflowVerified.value = true
   workflowComplete.value = true
-  workflowCorrect.value = placedSteps.value.every((s, i) => s?.id === correctWorkflowOrder[i])
   playSound('bling1.mp3')
 
-  setTimeout(() => {
-    phase.value = 'simulation'
-  }, 2000)
+  if (workflowCorrect.value) {
+    // Correct - proceed after short delay
+    setTimeout(() => {
+      phase.value = 'simulation'
+    }, 2000)
+  }
+  // If incorrect, user must click proceed button
+}
+
+function proceedAfterIncorrectWorkflow() {
+  gameStore.deductPoints(5)
+  phase.value = 'simulation'
 }
 
 // Simulation methods
@@ -405,51 +422,67 @@ function proceed() {
         <h3 class="part-title">GUEST PRINTING WORKFLOW</h3>
       </div>
 
-      <p class="workflow-instruction">Build the secure guest printing workflow in correct order:</p>
+      <p class="workflow-instruction">Click steps in the correct order (1-7) to build the secure guest printing workflow:</p>
 
-      <!-- Workflow slots -->
-      <div class="workflow-slots">
-        <div v-for="(slot, index) in placedSteps" :key="index" class="workflow-slot" :class="{ filled: slot !== null }">
-          <div class="slot-number">Step {{ index + 1 }}</div>
-          <div v-if="slot" class="slot-content">
-            <span class="step-letter">{{ slot.letter }})</span>
-            <span class="step-text">{{ slot.text }}</span>
-            <button v-if="!workflowComplete" class="slot-remove" @click="removeFromSlot(index)">×</button>
-          </div>
-          <div v-else class="slot-empty">Drop step here</div>
-          <div v-if="index < 6" class="slot-arrow">↓</div>
+      <!-- Workflow components (click-to-order like Level 11) -->
+      <div class="workflow-components">
+        <div
+          v-for="step in workflowSteps"
+          :key="step.id"
+          class="workflow-component"
+          :class="{ 
+            selected: step.order !== null, 
+            verified: workflowVerified, 
+            correct: workflowVerified && correctWorkflowOrder.indexOf(step.id) + 1 === step.order, 
+            incorrect: workflowVerified && step.order !== null && correctWorkflowOrder.indexOf(step.id) + 1 !== step.order 
+          }"
+          @click="selectWorkflowStep(step)"
+        >
+          <div class="comp-order" v-if="step.order">{{ step.order }}</div>
+          <div class="comp-icon">{{ step.icon }}</div>
+          <div class="comp-label">{{ step.label }}</div>
+          <div class="comp-desc">{{ step.description }}</div>
         </div>
       </div>
 
-      <!-- Available steps -->
-      <div v-if="!workflowComplete" class="available-steps">
-        <div class="steps-title">AVAILABLE STEPS:</div>
-        <div class="steps-grid">
-          <div v-for="step in availableSteps" :key="step.id" class="step-card">
-            <div class="step-header">
-              <span class="step-letter">{{ step.letter }})</span>
-              <span class="step-text">{{ step.text }}</span>
-            </div>
-            <p class="step-desc">{{ step.description }}</p>
-            <div class="step-buttons">
-              <button v-for="i in 7" :key="i" class="place-btn" @click="placeStep(step, i - 1)">{{ i }}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button v-if="!workflowComplete" class="btn btn-primary check-btn" :disabled="placedSteps.some((s) => s === null)" @click="checkWorkflow">
-        CHECK WORKFLOW
-      </button>
-
-      <!-- Workflow result -->
-      <div v-if="workflowComplete" class="workflow-result" :class="{ correct: workflowCorrect }">
+      <!-- Result after verification -->
+      <div v-if="workflowVerified" class="workflow-result" :class="{ correct: workflowCorrect }">
         <div class="result-header">
-          <span class="result-icon">{{ workflowCorrect ? '✓' : '~' }}</span>
-          <span class="result-text">{{ workflowCorrect ? 'CORRECT SEQUENCE!' : 'WORKFLOW SUBMITTED' }}</span>
+          <span class="result-icon">{{ workflowCorrect ? '✓' : '✗' }}</span>
+          <span class="result-text">{{ workflowCorrect ? 'CORRECT SEQUENCE!' : 'INCORRECT SEQUENCE (-5 points)' }}</span>
         </div>
-        <p v-if="!workflowCorrect" class="result-note">The correct sequence has been recorded. Proceeding to simulation...</p>
+        <div class="correct-sequence">
+          <p><strong>Correct flow:</strong></p>
+          <div class="sequence-flow">
+            <span class="seq-item">🌐 Access Portal</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">🔐 Authenticate</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">📤 Upload</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">🖨️ Select Printer</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">📧 Get Email</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">🚶 Go to MFD</span>
+            <span class="seq-arrow">→</span>
+            <span class="seq-item">✅ Print</span>
+          </div>
+        </div>
+        <button v-if="!workflowCorrect" class="btn btn-primary" @click="proceedAfterIncorrectWorkflow">
+          PROCEED →
+        </button>
       </div>
+
+      <!-- Verify button -->
+      <button 
+        v-if="!workflowVerified" 
+        class="btn btn-primary check-btn" 
+        :disabled="!allWorkflowStepsSelected" 
+        @click="verifyWorkflow"
+      >
+        VERIFY SEQUENCE →
+      </button>
     </div>
 
     <!-- Interactive Simulation (Part D) -->
@@ -948,132 +981,75 @@ function proceed() {
   margin-bottom: var(--space-lg);
 }
 
-.workflow-slots {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
+/* Workflow components (click-to-order like Level 11) */
+.workflow-components {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
 
-.workflow-slot {
-  width: 100%;
-  max-width: 400px;
+.workflow-component {
   background: var(--color-surface-elevated);
-  border: 2px dashed var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
   text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
   position: relative;
 }
 
-.workflow-slot.filled {
-  border-style: solid;
+.workflow-component:hover:not(.verified) {
   border-color: var(--color-primary);
 }
 
-.slot-number {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-xs);
+.workflow-component.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
 }
 
-.slot-content {
+.workflow-component.verified.correct {
+  border-color: var(--color-primary);
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.workflow-component.verified.incorrect {
+  border-color: var(--color-accent);
+  background: rgba(255, 0, 102, 0.2);
+}
+
+.workflow-component .comp-order {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
-}
-
-.step-letter {
   font-family: var(--font-display);
-  color: var(--color-primary);
-}
-
-.step-text {
   font-size: 0.85rem;
-  color: var(--color-text);
+  color: var(--color-background);
 }
 
-.slot-remove {
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: var(--color-accent);
-  color: white;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
-}
-
-.slot-empty {
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-  padding: var(--space-sm);
-}
-
-.slot-arrow {
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  margin: var(--space-xs) 0;
-}
-
-.available-steps {
-  background: var(--color-surface-elevated);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-
-.steps-title {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--color-text-dim);
-  margin-bottom: var(--space-md);
-}
-
-.steps-grid {
-  display: grid;
-  gap: var(--space-sm);
-}
-
-.step-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-md);
-}
-
-.step-header {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xs);
-}
-
-.step-desc {
-  font-size: 0.75rem;
-  color: var(--color-text-dim);
+.workflow-component .comp-icon {
+  font-size: 2rem;
   margin-bottom: var(--space-sm);
 }
 
-.step-buttons {
-  display: flex;
-  gap: 4px;
+.workflow-component .comp-label {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
 }
 
-.place-btn {
-  flex: 1;
-  padding: 4px;
+.workflow-component .comp-desc {
   font-size: 0.7rem;
-  background: transparent;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.place-btn:hover {
-  background: var(--color-primary-dim);
+  color: var(--color-text-dim);
 }
 
 .check-btn {
@@ -1086,6 +1062,7 @@ function proceed() {
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-md);
   text-align: center;
+  margin-bottom: var(--space-lg);
 }
 
 .workflow-result.correct {
@@ -1098,11 +1075,16 @@ function proceed() {
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
 .result-icon {
   font-size: 1.5rem;
+}
+
+.result-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
 }
 
 .workflow-result.correct .result-icon,
@@ -1110,9 +1092,41 @@ function proceed() {
   color: var(--color-primary);
 }
 
-.result-note {
+.workflow-result:not(.correct) .result-icon,
+.workflow-result:not(.correct) .result-text {
+  color: var(--color-accent);
+}
+
+.correct-sequence {
+  margin-bottom: var(--space-lg);
+}
+
+.correct-sequence p {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.sequence-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  justify-content: center;
+}
+
+.seq-item {
+  font-size: 0.7rem;
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.seq-arrow {
+  color: var(--color-primary);
   font-size: 0.8rem;
-  color: var(--color-text-dim);
 }
 
 /* Simulation section */
@@ -1606,6 +1620,19 @@ function proceed() {
 
   .comparison-section {
     grid-template-columns: 1fr;
+  }
+
+  .workflow-components {
+    grid-template-columns: 1fr;
+  }
+
+  .sequence-flow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .seq-arrow {
+    transform: rotate(90deg);
   }
 }
 </style>
