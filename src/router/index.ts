@@ -71,6 +71,12 @@ const router = createRouter({
       component: () => import('@/views/LeaderboardView.vue'),
       // No guard - leaderboard is publicly accessible
     },
+    {
+      path: '/tv',
+      name: 'leaderboard-tv',
+      component: () => import('@/views/LeaderboardTVView.vue'),
+      // TV display for 1080p HDTV - publicly accessible
+    },
     // Catch-all redirect to intro
     {
       path: '/:pathMatch(.*)*',
