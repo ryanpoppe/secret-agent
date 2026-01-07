@@ -1018,6 +1018,7 @@ function proceed() {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
   color: var(--color-primary);
+  padding: 0px;
 }
 
 .pin-digit:focus {
