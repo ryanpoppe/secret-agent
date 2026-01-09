@@ -3,6 +3,7 @@ import cors from 'cors';
 import { healthCheck } from './db.js';
 import leadsRouter from './routes/leads.js';
 import scoresRouter from './routes/scores.js';
+import adminRouter from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +58,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 // API routes
 app.use('/api/leads', authenticateApiKey, leadsRouter);
 app.use('/api/scores', scoresRouter);
+app.use('/api/admin', adminRouter);
 
 // Error handling middleware
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

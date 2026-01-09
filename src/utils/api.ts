@@ -360,3 +360,323 @@ export async function updateProgress(data: ScoreSubmission): Promise<ApiResponse
     }
   }
 }
+
+// ============================================
+// Admin API
+// ============================================
+
+const ADMIN_ENDPOINT = import.meta.env.VITE_ADMIN_ENDPOINT || '/api/admin'
+const ADMIN_TOKEN_KEY = 'secret_agent_admin_token'
+
+export interface AdminScore {
+  id: number
+  playerName: string
+  email: string
+  score: number
+  levelsCompleted: number
+  currentLevel: number
+  hintsUsed: number
+  totalAttempts: number
+  completionTime: number
+  isComplete: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AdminLead {
+  id: number
+  name: string
+  email: string
+  company: string
+  role: string
+  phone: string | null
+  completedAt: string
+  completionTime: number
+  levelsCompleted: number
+  hintsUsed: number
+  totalAttempts: number
+  source: string
+  event: string | null
+  createdAt: string
+}
+
+export interface AdminStats {
+  totalLeads: number
+  totalScores: number
+  completedGames: number
+}
+
+/**
+ * Get the stored admin token
+ */
+export function getAdminToken(): string | null {
+  return localStorage.getItem(ADMIN_TOKEN_KEY)
+}
+
+/**
+ * Store admin token
+ */
+export function setAdminToken(token: string): void {
+  localStorage.setItem(ADMIN_TOKEN_KEY, token)
+}
+
+/**
+ * Clear admin token
+ */
+export function clearAdminToken(): void {
+  localStorage.removeItem(ADMIN_TOKEN_KEY)
+}
+
+/**
+ * Admin login
+ */
+export async function adminLogin(username: string, password: string): Promise<ApiResponse & { token?: string }> {
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    })
+
+    const result = await response.json()
+
+    if (result.success && result.token) {
+      setAdminToken(result.token)
+    }
+
+    return result
+  } catch (error) {
+    console.error('Admin login error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Admin logout
+ */
+export async function adminLogout(): Promise<void> {
+  const token = getAdminToken()
+  if (token) {
+    try {
+      await fetch(`${ADMIN_ENDPOINT}/logout`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    } catch (error) {
+      console.error('Admin logout error:', error)
+    }
+  }
+  clearAdminToken()
+}
+
+/**
+ * Verify admin session
+ */
+export async function verifyAdminSession(): Promise<boolean> {
+  const token = getAdminToken()
+  if (!token) return false
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/verify`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.ok
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Get admin stats
+ */
+export async function getAdminStats(): Promise<{
+  success: boolean
+  data?: AdminStats
+  error?: string
+}> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Admin stats error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Get all scores (admin)
+ */
+export async function getAdminScores(limit = 100, offset = 0): Promise<{
+  success: boolean
+  data?: AdminScore[]
+  pagination?: { total: number; limit: number; offset: number }
+  error?: string
+}> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/scores?limit=${limit}&offset=${offset}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Admin scores error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Delete a single score entry
+ */
+export async function deleteScore(id: number): Promise<ApiResponse> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/scores/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Delete score error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Clear all scores (leaderboard)
+ */
+export async function clearLeaderboard(): Promise<ApiResponse & { deletedCount?: number }> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/scores`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Clear leaderboard error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Get all leads (admin)
+ */
+export async function getAdminLeads(limit = 100, offset = 0): Promise<{
+  success: boolean
+  data?: AdminLead[]
+  pagination?: { total: number; limit: number; offset: number }
+  error?: string
+}> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/leads?limit=${limit}&offset=${offset}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Admin leads error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Delete a single lead
+ */
+export async function deleteLead(id: number): Promise<ApiResponse> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/leads/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Delete lead error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Clear all leads
+ */
+export async function clearAllLeads(): Promise<ApiResponse & { deletedCount?: number }> {
+  const token = getAdminToken()
+  if (!token) return { success: false, error: 'Not authenticated' }
+
+  try {
+    const response = await fetch(`${ADMIN_ENDPOINT}/leads`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await response.json()
+  } catch (error) {
+    console.error('Clear leads error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}

@@ -77,6 +77,12 @@ const router = createRouter({
       component: () => import('@/views/LeaderboardTVView.vue'),
       // TV display for 1080p HDTV - publicly accessible
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminView.vue'),
+      // Admin dashboard - authentication handled within the component
+    },
     // Catch-all redirect to intro
     {
       path: '/:pathMatch(.*)*',

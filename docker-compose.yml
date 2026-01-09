@@ -38,6 +38,8 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-codecamp}:${POSTGRES_PASSWORD:-codecamp_secret}@db:5432/${POSTGRES_DB:-codecamp}
       API_KEY: ${API_KEY:-}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin_password_change_me}
     ports:
       - "3000:3000"
     depends_on:
@@ -69,11 +71,11 @@ services:
     depends_on:
       - api
 
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
+  # certbot:
+  #   image: certbot/certbot:latest
+  #   volumes:
+  #     - ./certbot/www/:/var/www/certbot/:rw
+  #     - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   postgres_data:
