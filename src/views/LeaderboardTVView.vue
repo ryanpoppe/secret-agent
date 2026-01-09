@@ -37,12 +37,8 @@ function formatTime(seconds: number): string {
 }
 
 function getRankBadge(rank: number): string {
-  switch (rank) {
-    case 1: return '🥇'
-    case 2: return '🥈'
-    case 3: return '🥉'
-    default: return `#${rank}`
-  }
+  // Return just the number - styling handled by CSS
+  return rank <= 3 ? `${rank}` : `#${rank}`
 }
 
 function getRankTitle(score: number): string {
@@ -139,7 +135,7 @@ onUnmounted(() => {
           </div>
           
           <div class="title-section">
-            <div class="title-badge">📡 LIVE SIGNAL INTERCEPT</div>
+            <div class="title-badge"><span class="icon-signal"></span> LIVE SIGNAL INTERCEPT</div>
             <h1 class="main-title">AGENT RANKINGS</h1>
             <div class="subtitle">OPERATION: DIGITAL FORTRESS</div>
           </div>
@@ -188,7 +184,7 @@ onUnmounted(() => {
           </div>
 
           <div v-if="entries.length === 0" class="no-data">
-            <div class="no-data-icon">🔒</div>
+            <div class="no-data-icon"><span class="icon-lock"></span></div>
             <p>NO AGENTS REGISTERED</p>
             <p class="no-data-sub">Be the first to complete the mission!</p>
           </div>
@@ -206,9 +202,9 @@ onUnmounted(() => {
             >
               <!-- Rank -->
               <div class="td-rank">
-                <span class="rank-badge" :class="{ 'gold': entry.rank === 1, 'silver': entry.rank === 2, 'bronze': entry.rank === 3 }">
-                  {{ getRankBadge(entry.rank) }}
-                </span>
+                <div class="rank-medal" :class="{ 'gold': entry.rank === 1, 'silver': entry.rank === 2, 'bronze': entry.rank === 3, 'standard': entry.rank > 3 }">
+                  <span class="rank-number">{{ getRankBadge(entry.rank) }}</span>
+                </div>
               </div>
 
               <!-- Agent info -->
@@ -285,7 +281,7 @@ onUnmounted(() => {
       <div class="qr-side">
         <div class="qr-panel">
           <div class="qr-header">
-            <div class="qr-badge">🎯 JOIN THE MISSION</div>
+            <div class="qr-badge"><span class="icon-target"></span> JOIN THE MISSION</div>
             <h2 class="qr-title">SCAN TO PLAY</h2>
           </div>
 
@@ -453,6 +449,46 @@ onUnmounted(() => {
 @keyframes badgeGlow {
   0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
   50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.6); }
+}
+
+/* CSS-based icons to replace emoji */
+.icon-signal {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.icon-signal::before,
+.icon-signal::after {
+  content: '';
+  position: absolute;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: signalPulse 2s ease-out infinite;
+}
+
+.icon-signal::before {
+  width: 8px;
+  height: 8px;
+  bottom: 0;
+  left: 4px;
+  animation-delay: 0s;
+}
+
+.icon-signal::after {
+  width: 16px;
+  height: 16px;
+  bottom: -4px;
+  left: 0;
+  animation-delay: 0.3s;
+}
+
+@keyframes signalPulse {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.3); }
 }
 
 .main-title {
@@ -724,35 +760,77 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.rank-badge {
-  font-size: 2.5rem;
+/* Medal-style rank badges */
+.rank-medal {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  position: relative;
 }
 
-.rank-badge.gold {
+.rank-medal.gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ffec8b 30%, #ffd700 50%, #daa520 70%, #ffd700 100%);
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
   animation: goldGlow 2s ease-in-out infinite;
 }
 
-.rank-badge.silver {
+.rank-medal.silver {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 30%, #c0c0c0 50%, #a0a0a0 70%, #c0c0c0 100%);
+  box-shadow: 
+    0 0 20px rgba(192, 192, 192, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
   animation: silverGlow 2s ease-in-out infinite;
 }
 
-.rank-badge.bronze {
+.rank-medal.bronze {
+  background: linear-gradient(135deg, #cd7f32 0%, #e6a861 30%, #cd7f32 50%, #a0522d 70%, #cd7f32 100%);
+  box-shadow: 
+    0 0 20px rgba(205, 127, 50, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
   animation: bronzeGlow 2s ease-in-out infinite;
 }
 
+.rank-medal.standard {
+  background: var(--color-surface-elevated);
+  border: 2px solid var(--color-border);
+}
+
+.rank-number {
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+  line-height: 1;
+}
+
+.rank-medal.standard .rank-number {
+  color: var(--color-text-dim);
+  font-size: 1.1rem;
+  text-shadow: none;
+}
+
 @keyframes goldGlow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
-  50% { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 35px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
 }
 
 @keyframes silverGlow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(192, 192, 192, 0.5)); }
-  50% { filter: drop-shadow(0 0 25px rgba(192, 192, 192, 1)); }
+  0%, 100% { box-shadow: 0 0 20px rgba(192, 192, 192, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 35px rgba(192, 192, 192, 1), 0 0 60px rgba(192, 192, 192, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
 }
 
 @keyframes bronzeGlow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(205, 127, 50, 0.5)); }
-  50% { filter: drop-shadow(0 0 25px rgba(205, 127, 50, 1)); }
+  0%, 100% { box-shadow: 0 0 20px rgba(205, 127, 50, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 35px rgba(205, 127, 50, 1), 0 0 60px rgba(205, 127, 50, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.2); }
 }
 
 .td-agent {
@@ -857,6 +935,39 @@ onUnmounted(() => {
   animation: lockPulse 2s ease-in-out infinite;
 }
 
+/* CSS Lock icon */
+.icon-lock {
+  display: inline-block;
+  width: 60px;
+  height: 80px;
+  position: relative;
+}
+
+.icon-lock::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 30px;
+  border: 6px solid var(--color-text-dim);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+}
+
+.icon-lock::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 44px;
+  background: var(--color-text-dim);
+  border-radius: 6px;
+}
+
 @keyframes lockPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
@@ -932,7 +1043,8 @@ onUnmounted(() => {
 }
 
 .qr-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 8px 20px;
   background: rgba(0, 255, 136, 0.1);
   border: 2px solid var(--color-primary);
@@ -941,6 +1053,44 @@ onUnmounted(() => {
   color: var(--color-primary);
   letter-spacing: 0.15em;
   margin-bottom: 12px;
+}
+
+/* CSS Target/crosshair icon */
+.icon-target {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  margin-right: 10px;
+}
+
+.icon-target::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+}
+
+.icon-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 
+    0 -8px 0 0 var(--color-primary),
+    0 8px 0 0 var(--color-primary),
+    -8px 0 0 0 var(--color-primary),
+    8px 0 0 0 var(--color-primary);
 }
 
 .qr-title {
@@ -1104,4 +1254,3 @@ onUnmounted(() => {
   transform: translateX(50px);
 }
 </style>
-
