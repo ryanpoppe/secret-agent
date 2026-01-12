@@ -299,7 +299,7 @@ onUnmounted(() => {
       <!-- Footer actions -->
       <div class="footer-actions">
         <button class="btn btn-secondary" @click="goToIntro">
-          ← RETURN TO BASE
+          ← PLAY NOW
         </button>
         <button class="btn btn-primary" @click="fetchLeaderboard(true)">
           ↻ REFRESH DATA
