@@ -317,7 +317,7 @@ onUnmounted(() => {
           </div> -->
 
           <div class="brand-section">
-            <div class="brand-logo">VASION</div>
+            <div class="brand-logo">VASION.ORG</div>
             <div class="brand-tagline">SECURE PRINT SOLUTIONS</div>
           </div>
         </div>
